@@ -9,7 +9,7 @@ const userSchema = new Schema({
     role: {
         type: String,
         default: 'user',
-        enum:['user','admin','worker']
+        enum:['user','admin']
     },
     isVerified: {
         type: Boolean,
