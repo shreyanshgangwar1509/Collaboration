@@ -11,7 +11,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [role, setRole] = useState("user");
   // const [isLogged ,setIslogged] = useState(false)
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +20,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
@@ -54,18 +53,7 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-                <label className="block mb-2 text-black">Role</label>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="border p-2 w-full bg-white text-black"
-                >
-                  <option value="user">User</option>
-                  <option value="worker">Worker</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
+          
           <div>
             <label className="block text-gray-700 font-semibold">Email</label>
             <input
