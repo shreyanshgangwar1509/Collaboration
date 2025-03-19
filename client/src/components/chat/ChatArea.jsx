@@ -1,26 +1,23 @@
 import {
-    Box,
-    VStack,
-    HStack,
-    Text,
-    Input,
-    Button,
-    Flex,
-    Icon,
-    Avatar,
-    InputGroup,
-    InputRightElement,
-    useToast,
-  } from "@chakra-ui/react";
-  import { FiSend, FiInfo, FiMessageCircle } from "react-icons/fi";
-  import UsersList from "./UsersList";
-  import { useRef, useState } from "react";
-  import { useEffect } from "react";
-  import axios from "axios";
-  // import http://localhost:5000 from "../../utils";
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+  useToast,
+  VStack
+} from "@chakra-ui/react";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import { FiInfo, FiMessageCircle, FiSend } from "react-icons/fi";
+import UsersList from "./UsersList";
   
   const ChatArea = ({ selectedGroup, socket, setSelectedGroup }) => {
-    console.log(selectedGroup?._id);
+    // console.log(selectedGroup?._id);
   
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
@@ -31,16 +28,25 @@ import {
     const typingTimeoutRef = useRef(null);
     const toast = useToast();
   
-    const currentUser = JSON.parse(localStorage.getItem("userInfo") || {});
-  
+    const currentUser = JSON.parse(localStorage.getItem("userinfo") )|| {};
+    // const currentUser = jwtDecode(user);
     useEffect(() => {
+      setMessages(sampleMessages);
       if (selectedGroup && socket) {
         //fetch messages
+        console.log("Fetching messesgae");
+        
         fetchMessages();
         socket.emit("join room", selectedGroup?._id);
-        socket.on("message receive", (newMessage) => {
-          setMessages((prev) => [...prev, newMessage]);
+        socket.on("message received", (msg) => {
+          setMessages((prev) => {
+            if (!prev.some((m) => m._id === msg._id)) {
+              return [...prev, msg];
+            }
+            return prev;
+          });
         });
+
   
         socket.on("users in room", (users) => {
           setConnectedUsers(users);
@@ -79,6 +85,8 @@ import {
             return newSet;
           });
         });
+        // console.log(connectedUsers);
+        
         //clean up
         return () => {
           socket.emit("leave room", selectedGroup?._id);
@@ -93,63 +101,63 @@ import {
       }
     }, [selectedGroup, socket, toast]);
     //fetch messages
-    const fetchMessages = async () => {
-      const currentUser = JSON.parse(localStorage.getItem("userInfo") || {});
-      const token = currentUser?.token;
-      try {
-        const { data } = await axios.get(
-          `http://localhost:5000/api/messages/${selectedGroup?._id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setMessages(data);
-      } catch (error) {
-        console.log(error);
+    useEffect(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }
-    };
+    }, [messages]);
+
+    const fetchMessages = async () => {
+          const token = localStorage.getItem("token");
+          try {
+            const { data } = await axios.get(
+              `http://localhost:3000/api/messages/${selectedGroup?._id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setMessages(data.reverse());
+
+          } catch (error) {
+            // console.log(error);
+            
+            console.error(error);
+          }
+        };
+
   
     //send message
     const sendMessage = async () => {
-      if (!newMessage.trim()) {
-        return;
-      }
-      try {
-        const token = currentUser.token;
-        const { data } = await axios.post(
-          `http://localhost:5000/api/messages`,
-          {
-            content: newMessage,
-            groupId: selectedGroup?._id,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        socket.emit("new message", {
-          ...data,
-          groupId: selectedGroup?._id,
-        });
-  
-        setMessages([...messages, data]);
-        setNewMessage("");
-      } catch (error) {
-        toast({
-          title: "Error sending message",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    };
+        if (!newMessage.trim()) return;
+        const token = localStorage.getItem("token");
+        try {
+          const { data } = await axios.post(
+            "http://localhost:3000/api/messages",
+            { content: newMessage, groupId: selectedGroup?._id },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          socket.emit("new message", { ...data, groupId: selectedGroup?._id });
+          setMessages([...messages, data]);
+          setNewMessage("");
+        } catch (error) {
+          toast({
+            title: "Error sending message",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      };
+
     //handleTyping
     const handleTyping = (e) => {
+      const currentUser = JSON.parse(localStorage.getItem('userinfo')) || {}
+      // console.log(currentUser.name);
+      
       setNewMessage(e.target.value);
       if (!isTyping && selectedGroup) {
         setIsTyping(true);
         socket.emit("typing", {
           groupId: selectedGroup?._id,
-          username: currentUser.username,
+          username: currentUser.name,
         });
       }
       //clear existing timeout
@@ -177,24 +185,25 @@ import {
     const renderTypingIndicator = () => {
       if (typingUsers.size === 0) return null;
       const typingUsersArray = Array.from(typingUsers);
-  
+      console.log(typingUsers);
+      
       return typingUsersArray?.map((username) => (
         <Box
           key={username}
           alignSelf={
-            username === currentUser?.username ? "flex-start" : "flex-end"
+            username === currentUser?.name ? "flex-start" : "flex-end"
           }
           maxW="70%"
         >
           <Flex
             align="center"
-            bg={username === currentUser?.username ? "blue.50" : "gray.50"}
+            bg={username === currentUser?.name ? "blue.50" : "gray.50"}
             p={2}
             borderRadius="lg"
             gap={2}
           >
             {/* current user (You) -left side */}
-            {username === currentUser?.username ? (
+            {username === currentUser?.name ? (
               <>
                 <Avatar size="xs" name={username} />
                 <Flex align="center" gap={1}>
@@ -328,6 +337,8 @@ import {
                 align="stretch"
                 px={6}
                 py={4}
+                w={{ base: "100%", md: "450px", lg: "600px" }}  // ✅ Does not grow in md screens
+                maxH="500px"  // ✅ Restricts max height
                 position="relative"
                 sx={{
                   "&::-webkit-scrollbar": {
@@ -370,13 +381,14 @@ import {
                               You • {formatTime(message.createdAt)}
                             </Text>
                           </>
+                          
                         ) : (
                           <>
                             <Text fontSize="xs" color="gray.500">
-                              {message.sender.username} •{" "}
+                              {message.sender.name} •{" "}
                               {formatTime(message.createdAt)}
                             </Text>
-                            <Avatar size="xs" name={message.sender.username} />
+                            <Avatar size="xs" name={message.sender.name} />
                           </>
                         )}
                       </Flex>
@@ -494,3 +506,4 @@ import {
   };
   
   export default ChatArea;
+

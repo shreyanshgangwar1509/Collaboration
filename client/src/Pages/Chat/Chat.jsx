@@ -1,27 +1,38 @@
-import { Box, Flex } from "@chakra-ui/react";
-import io from 'socket.io-client';
+
+import { Box, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, FormControl, Input } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import io from "socket.io-client";
 import ChatArea from "../../components/chat/ChatArea";
 import Sidebar from "../../components/chat/Sidebar";
-const ENDPOINT="http://localhost:5000";
+
+const ENDPOINT = "http://localhost:3000";
 
 const Chat = () => {
-  const [selectedGroup,setSelectedGroup]=useState(null);
-  const [socket,setSocket]=useState(null);
-  useEffect(()=>{
-    const userInfo=JSON.parse(localStorage.getItem('userInfo') || {});
-    const newSocket=io(ENDPOINT,{
-      auth:{user:userInfo},
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [socket, setSocket] = useState(null);
+  
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found!");
+      return;
+    }
+
+    const newSocket = io(ENDPOINT, {
+      auth: { token }
     });
+
     setSocket(newSocket);
-    return ()=>{
-      if(newSocket){
-        newSocket.disconnect();
-      }
+
+    return () => {
+      newSocket.disconnect();
     };
-  },[]);
+  }, []);
+
   return (
     <Flex h="100vh">
+    
       <Box w="300px" borderRight="1px solid" borderColor="gray.200">
         <Sidebar setSelectedGroup={setSelectedGroup} />
       </Box>

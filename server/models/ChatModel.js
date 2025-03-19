@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
-import { User } from './user.model';
+import { User } from './user.model.js';
 const messageSchema=new mongoose.Schema({
     sender:{
         type: mongoose.Schema.Types.ObjectId,

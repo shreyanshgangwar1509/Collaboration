@@ -1,28 +1,28 @@
 import {
-    Box,
-    VStack,
-    Text,
-    Button,
-    useDisclosure,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalCloseButton,
-    FormControl,
-    FormLabel,
-    Input,
-    useToast,
-    Flex,
-    Icon,
-    Badge,
-    Tooltip,
-  } from "@chakra-ui/react";
-  import axios from "axios";
-  import { useEffect, useState } from "react";
-  import { FiLogOut, FiPlus, FiUsers } from "react-icons/fi";
-  import { Link, useNavigate } from "react-router-dom";
+  Badge,
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Icon,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  Tooltip,
+  useDisclosure,
+  useToast,
+  VStack
+} from "@chakra-ui/react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { FiLogOut, FiPlus, FiUsers } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
   const Sidebar = ({setSelectedGroup}) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [newGroupName, setNewGroupName] = useState("");
@@ -31,49 +31,71 @@ import {
     const [newGroupDescription, setNewGroupDescription] = useState("");
     const toast = useToast();
     const [isAdmin, setIsAdmin] = useState(false);
+    const [creategroup, setcreategroup] = useState(false);
     // const isAdmin = true;
+    const token = localStorage.getItem('token');
   
+    //check if login user is an admin
+    const checkAdminStatus=()=>{
+      const userInfo=JSON.parse(localStorage.getItem("userinfo")) || {};
+      //update admin status
+      setIsAdmin(userInfo?.isAdmin ||false);
+    }
     const navigate=useNavigate();
     useEffect(()=>{
       checkAdminStatus();
       fetchGroups();
     },[]);
-  
-    //check if login user is an admin
-    const checkAdminStatus=()=>{
-      const userInfo=JSON.parse(localStorage.getItem("userInfo") || {});
-      //update admin status
-      setIsAdmin(userInfo?.isAdmin ||false);
-    }
     //fetch all groups
-    const fetchGroups=async()=>{
+    const fetchGroups = async () => {
       try {
-        const userInfo=JSON.parse(localStorage.getItem("userInfo") || {});
-        const token=userInfo.token;
-        const {data}=await axios.get("http://localhost:5000/api/groups",{
-          headers:{
-            Authorization:`Bearer ${token}`,
+        const token = localStorage.getItem('token');
+        const userInfo = JSON.parse(localStorage.getItem("userinfo")) || {};
+        if (!token) {
+          console.error("No token available. Cannot fetch groups.");
+          return;
+        }
+
+        const { data } = await axios.get("http://localhost:3000/api/groups", {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         });
+
         setGroups(data);
-        const userGroupIds=data?.filter((group)=>{
-          console.log(group);
-          return group?.members?.some((member)=>member?._id===userInfo?._id);
-        }).map((group)=>group?._id);
-        console.log(userGroupIds);
+
+        if (!userInfo?._id) {
+          console.warn("User info not available. Skipping user group filtering.");
+          return;
+        }
+        // console.log(data);
+        
+        // Find groups where the user is a member
+        const userGroupIds = data
+          ?.filter((group) => 
+            group?.members?.some((member) => member?._id === userInfo._id) // Check if user is a member
+          )
+          .map((group) => group?._id); // Extract group IDs
+        
         setUserGroups(userGroupIds);
+        // console.log("User Group IDs:", userGroupIds);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching groups:", error);
+        toast({
+          title: "Error Fetching Groups",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          description: error?.response?.data?.message || "Failed to fetch groups.",
+        });
       }
-    }
-    //fetch users group
-  
+    };
+
     //create groups
     const handleCreateGroup=async()=>{
       try {
-        const userInfo=JSON.parse(localStorage.getItem("userInfo") || {});
-        const token=userInfo.token;
-        await axios.post("http://localhost:5000/api/groups",{
+        const token = localStorage.getItem('token');
+        await axios.post("http://localhost:3000/api/groups/create",{
           name:newGroupName,
           description:newGroupDescription,
         },{
@@ -102,7 +124,8 @@ import {
       }
     }
     //logout
-    const handleLogout=()=>{
+    const handleLogout = () => {
+      localStorage.removeItem('token');
       localStorage.removeItem("userInfo");
       navigate("/login");
     }
@@ -110,10 +133,8 @@ import {
     //join group
     const handleJoinGroup=async(groupId)=>{
       try {
-        const userInfo=JSON.parse(localStorage.getItem("userInfo") || {});
-        const token=userInfo.token;
-        await axios.post(`http://localhost:5000/api/groups/${groupId}/join`,{
-        },{
+        const token = localStorage.getItem('token');
+        await axios.post(`http://localhost:3000/api/groups/${groupId}/join`,{},{
           headers:{
             Authorization:`Bearer ${token}`,
           }
@@ -138,37 +159,64 @@ import {
       }
     }
     //leave group
-    const handleLeaveGroup=async(groupId)=>{
+    const handleLeaveGroup = async (groupId) => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("No token found. Cannot leave group.");
+            return;
+          }
+
+          const response = await axios.post(
+            `http://localhost:3000/api/groups/${groupId}/leave`,
+            {}, // Empty request body if needed
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          // Refresh the group list after leaving
+          await fetchGroups();
+          setSelectedGroup(null);
+
+          toast({
+            title: "Left group successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        } catch (error) {
+          console.error("Error leaving group:", error);
+          
+          toast({
+            title: "Error leaving group",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+            description: error?.response?.data?.message || "An error occurred",
+          });
+        }
+      };
+
+    // Sample groups data
+    const newgrouphandler = async(e) => {
       try {
-        const userInfo=JSON.parse(localStorage.getItem("userInfo") || {});
-        const token=userInfo.token;
-        await axios.post(`http://localhost:5000/api/groups/${groupId}/leave`,{
+        const response = await axios.post(`http://localhost:3000/api/groups/${groupId}/leave`,{
         },{
           headers:{
             Authorization:`Bearer ${token}`,
           }
-        });
-        await fetchGroups();
-        setSelectedGroup(null);
-  
-        toast({
-          title: "Left group Successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
+        },
+          {
+            name: e.target.name,
+            description: e.target.description
+          });
       } catch (error) {
-        toast({
-          title: "Error leaving Group",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          description:error?.response?.data?.message || "An error occurred",
-        })
+        
       }
     }
-    // Sample groups data
-  
     return (
       <Box
         h="100%"
@@ -196,6 +244,7 @@ import {
             <Text fontSize="xl" fontWeight="bold" color="gray.800">
               Groups
             </Text>
+          
           </Flex>
           {isAdmin && (
             <Tooltip label="Create New Group" placement="right">
@@ -228,11 +277,13 @@ import {
                   transform: "translateY(-2px)",
                   shadow: "md",
                   borderColor: "blue.300",
-                }}
+                }}    nnn
               >
                 <Flex justify="space-between" align="center">
-                  <Box onClick={()=>
-                    userGroups.includes(group?._id) && setSelectedGroup(group)
+                  <Box onClick={() => {
+                    userGroups.includes(group?._id);
+                    setSelectedGroup(group)
+                  }
                   } flex="1">
                     <Flex align="center" mb={2}>
                       <Text fontWeight="bold" color="gray.800">
@@ -299,6 +350,21 @@ import {
           >
             Logout
           </Button>
+          <Button
+            variant="ghost"
+            onClick={onOpen} // Correct function to open the modal
+            colorScheme="red"
+            leftIcon={<Icon as={FiUsers} />}
+            _hover={{
+              bg: "red.50",
+              transform: "translateY(-2px)",
+              shadow: "md",
+            }}
+            transition="all 0.2s"
+          >
+            New Group
+          </Button>
+
         </Box>
   
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -339,9 +405,10 @@ import {
             </ModalBody>
           </ModalContent>
         </Modal>
+        
       </Box>
     );
   };
   
   export default Sidebar;
-  
+ 

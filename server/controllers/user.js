@@ -1,74 +1,36 @@
 import jwt from 'jsonwebtoken';
 import { User } from "../models/user.model.js";
 import VerificationToken from '../models/VerificationToken.js';
-import { Worker } from "../models/worker.model.js";
 import sendverificationemail from '../utills/send-otp.js';
 import { setToken } from '../utills/token.js';
 
 const SignUp = async (req, res) => {
 
-  const { name, email, password, role } = req.body; // Added role
+  const { name, email, password } = req.body; // Added role
   
   console.log("Received email:", email);
 
   try {
   //   const publicId = req.file.filename || req.file.public_id; 
   // const imageUrl = req.file.path;
-    const Model = role === 'worker' ? Worker : User;
+    const Model =  User;
 
     const existingUser = await Model.findOne({ email });
     console.log("Existing user:", existingUser);
     
     if (existingUser) {
-      return res.status(400).json({ message: 'User/Worker already exists' });
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    let user;
-    if (role == 'user' || role == 'admin') {
-      user = new Model({
+    
+      const user = new Model({
         name, email, password, isVerified: false
         // , avatar: {
         //         public_id: publicId,
         //         url: imageUrl,
-            , });
-      
-    }
-    else if (role == 'worker') {
-      let {
-            name,
-            password,
-            isVerified,
-            services,
-        phone,
-        avatar,
-        identity,
-            email,
-        location,
-            
-            
-        } = req.body;
-
-        // Check if the worker already exists
-        const existingWorker = await Worker.findOne({ phone });
-        if (existingWorker) {
-            return res.status(400).json({ message: 'Worker already exists with this phone number.' });
-      }
-      user = new Worker({
-            name,
-        password,
-            email,
-            isVerified: false,
-            services,
-            phone,
-            location: location || {
-                type: 'Point',
-                coordinates: [0, 0]
-            },
-            avatar,
-        identity,
-        });
-
-    }
+        ,
+      });
+    
     await user.save();
 
     await sendverificationemail(req, email);
@@ -79,24 +41,23 @@ const SignUp = async (req, res) => {
   }
 };
 const Login = async (req, res) => {
-  const { email, password ,role } = req.body; // Added role
+  const { email, password  } = req.body; // Added role
   // const role = req.role;
   console.log("Login attempt for email:", email);
   
   try {
-    const Model = role === 'worker' ? Worker : User;
+    const Model =  User;
 
     const user = await Model.findOne(
         { email },
-        "password isVerified role"
-    ).select("password isVerified role");
+        "password isVerified"
+    ).select("password isVerified");
     if (!user) {
           return res.status(400).json({ message: 'Invalid credentials: user/worker not found' });
         }
     
     const isMatch = (password === user.password); // Replace with bcrypt.compare
-    // console.log(password," ",user.password);
-    // console.log(process.env.ACCESS_TOKEN,process.env.REFERESH_TOKEN);
+    
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials: password does not match' });
     }
@@ -107,7 +68,7 @@ const Login = async (req, res) => {
     }
 
     const accessToken = setToken(user);
-    const refreshToken = jwt.sign({ user, role }, process.env.JWT_SECERET || '', { expiresIn: "1d" });
+    const refreshToken = jwt.sign({ user}, process.env.JWT_SECERET || '', { expiresIn: "1d" });
   
     res.cookie(process.env.ACCESS_TOKEN, accessToken, { httpOnly: true, secure: true });
     res.cookie(process.env.REFERESH_TOKEN, refreshToken, { httpOnly: true, secure: true });
@@ -194,9 +155,8 @@ const tokencontroller = async (req, res) => {
 }
 const getProfile = async (req, res) => {
   try {
-    console.log(req.role);
-    const Model = req.role === 'user' ? User : Worker;
-    const user = await Model.findById(req.user).select('-password'); 
+    
+    const user = await User.findById(req.user).select('-password'); 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -208,5 +168,5 @@ const getProfile = async (req, res) => {
   }
 };
 
-export { acceptRequest, chatWithWorker, deleteUserAccount, GetAllNotifications, getMyFriends, getPastBookings, getProfile, getRecommend, getRecommendations, getUserBookings, googleSignIn, handleVoiceBooking, Login, logoutUser, markBookingAsPaid, searchUser, sendRequest, SignUp, submitReviewToWorker, tokencontroller, verifyemail };
+export { getProfile, Login, logoutUser, SignUp, tokencontroller, verifyemail };
 
