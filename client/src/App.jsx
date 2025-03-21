@@ -14,7 +14,7 @@ import Home from "./Pages/Home/Home";
 import PPTEditor from "./Pages/PPT/PPTEditor";
 import WhiteBoard from "./Pages/WhiteBoard/WhiteBoard";
 import Chatbot from "./Pages/chatbot/Chatbot";
-
+import Editor from "./Pages/textEditor/Editor"
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
@@ -37,6 +37,7 @@ function App() {
             <Route path="/docs" element={<DocEditor />} />
             <Route path="/whiteboard" element={<WhiteBoard />} />
             <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/editor" element={<Editor />} />
           </Routes>
         </Router>
       </div>
