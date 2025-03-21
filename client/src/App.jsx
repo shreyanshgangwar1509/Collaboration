@@ -1,7 +1,8 @@
-
 import React from "react";
 import { Toaster } from "react-hot-toast";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Import QueryClientProvider
+
 import Login from "./Pages/Auth/Login";
 import Profile from "./Pages/Auth/Profile";
 import Register from "./Pages/Auth/Register";
@@ -12,33 +13,34 @@ import DocEditor from "./Pages/Docs/DocEditor";
 import Home from "./Pages/Home/Home";
 import PPTEditor from "./Pages/PPT/PPTEditor";
 import WhiteBoard from "./Pages/WhiteBoard/WhiteBoard";
+import Chatbot from "./Pages/chatbot/Chatbot";
 
-// const theme = extendTheme({});
+// Create a QueryClient instance
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <div className="w-full bg-white">
-      
+    <QueryClientProvider client={queryClient}>
+      <div className="w-full bg-white">
+        <Toaster position="top-center" />
 
-        <div>
-      <Toaster  position='top-center'></Toaster>
-    </div>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile/>}/>
-          <Route path="/home/editor" element={<CodingHome/>}/>
-          <Route path="home/editor/:roomid" element={<CodingEditor />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/ppt" element={<PPTEditor />} />
-          <Route path="/docs" element={<DocEditor />} />
-          <Route path="/whiteboard" element={<WhiteBoard />} />
-          
-        </Routes>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/home/editor" element={<CodingHome />} />
+            <Route path="home/editor/:roomid" element={<CodingEditor />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/ppt" element={<PPTEditor />} />
+            <Route path="/docs" element={<DocEditor />} />
+            <Route path="/whiteboard" element={<WhiteBoard />} />
+            <Route path="/chatbot" element={<Chatbot />} />
+          </Routes>
         </Router>
-        
-    </div>
+      </div>
+    </QueryClientProvider>
   );
 }
 
