@@ -46,8 +46,7 @@ import UsersList from "./UsersList";
             return prev;
           });
         });
-
-  
+        
         socket.on("users in room", (users) => {
           setConnectedUsers(users);
         });

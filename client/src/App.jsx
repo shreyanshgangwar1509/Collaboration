@@ -11,8 +11,8 @@ import CodingHome from "./Pages/Coding/CodingHome";
 import DocEditor from "./Pages/Docs/DocEditor";
 import Home from "./Pages/Home/Home";
 import PPTEditor from "./Pages/PPT/PPTEditor";
-import WhiteBoard from "./Pages/WhiteBoard/WhiteBoard";
-
+import Container from "./Pages/WhiteBoard/container/Container";
+import WhiteRoom from "./Pages/WhiteBoard/WhiteRoom";
 // const theme = extendTheme({});
 function App() {
   return (
@@ -33,7 +33,8 @@ function App() {
           <Route path="/chat" element={<Chat />} />
           <Route path="/ppt" element={<PPTEditor />} />
           <Route path="/docs" element={<DocEditor />} />
-          <Route path="/whiteboard" element={<WhiteBoard />} />
+          <Route path="/whiteboard" element={<WhiteRoom />} />
+          <Route path="/whiteboard/:roomid" element={<Container />} />
           
         </Routes>
         </Router>
