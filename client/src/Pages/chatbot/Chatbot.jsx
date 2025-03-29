@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useState } from "react";
 import axios from "axios";
-import "./Chatbot.css"
-import {IoSend} from "react-icons/io5";
-import {FaRobot} from "react-icons/fa";
+import React, { useState } from "react";
+import { FaRobot } from "react-icons/fa";
+import { IoSend } from "react-icons/io5";
+import "./Chatbot.css";
 //Function to make the http request(useMutation);
 const sendMessageAPI=async(message)=>{
-    const res=await axios.post("http://localhost:3000/ask",{message});
+    const res=await axios.post("http://localhost:3000/api/chatbot/ask",{message});
     return res.data;
 }
 const Chatbot=()=>{

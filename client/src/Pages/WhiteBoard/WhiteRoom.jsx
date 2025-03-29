@@ -7,7 +7,7 @@ import WhiteBoard from "./WhiteBoard";
 
 const ENDPOINT = "http://localhost:3000";
 
-function CodingHome() {
+function WhiteHome() {
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");
   const [board, setboard] = useState(false);
@@ -117,4 +117,4 @@ function CodingHome() {
   );
 }
 
-export default CodingHome;
+export default WhiteHome;
