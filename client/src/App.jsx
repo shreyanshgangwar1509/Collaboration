@@ -1,9 +1,9 @@
 import React from "react";
 import { Toaster } from "react-hot-toast";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import { ChakraProvider } from "@chakra-ui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Layout from "./layout/Layout";
 import Login from "./Pages/Auth/Login";
 import Profile from "./Pages/Auth/Profile";
 import Register from "./Pages/Auth/Register";
@@ -11,13 +11,13 @@ import Chat from "./Pages/Chat/Chat";
 import Chatbot from "./Pages/chatbot/Chatbot";
 import CodingEditor from "./Pages/Coding/CodingEditor";
 import CodingHome from "./Pages/Coding/CodingHome";
+import Editor from "./Pages/Coding/component/Editor";
 import DocEditor from "./Pages/Docs/DocEditor";
 import Home from "./Pages/Home/Home";
-import PPTEditor from "./Pages/PPT/PPTEditor";
-import WhiteBoard from "./Pages/WhiteBoard/WhiteBoard";
 import PhotoEditor from "./Pages/PhotoShop/PhotoEditor";
-import Layout from "./layout/Layout";
-
+import PPTEditor from "./Pages/PPT/PPTEditor";
+import Container from "./Pages/WhiteBoard/container/Container";
+import WhiteHome from "./Pages/WhiteBoard/WhiteRoom";
 const App = () => {
   return (
     <>
@@ -42,7 +42,10 @@ const App = () => {
             />
             <Route path="/ppt" element={<PPTEditor />} />
             <Route path="/docs" element={<DocEditor />} />
-            <Route path="/whiteboard" element={<WhiteBoard />} />
+            <Route path="/whiteboard" element={<WhiteHome />} />
+            <Route path="/whiteboard/:roomid" element={<Container />} />
+            <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/editor" element={<Editor />} />
             <Route path="/photoshop" element={<PhotoEditor />} />
           </Route>
         </Routes>

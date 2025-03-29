@@ -1,14 +1,12 @@
 import { AiFillDiscord } from "react-icons/ai";
-import { FaTwitter } from "react-icons/fa";
+import { FaFacebook, FaTelegram, FaTwitter } from "react-icons/fa";
 import { FaInstagram } from "react-icons/fa6";
-import { FaTelegram } from "react-icons/fa";
-import { FaFacebook } from "react-icons/fa";
 
 export const navigation = [
     {
       id: "0",
       title: "Code",
-      url: "/code",
+      url: "/home/editor",
     },
     {
       id: "1",
@@ -19,12 +17,32 @@ export const navigation = [
       id: "2",
       title: "Doc",
       url: "/doc",
+  },
+    {
+      id: "4",
+      title: "WhiteBoard",
+      url: "/whiteboard",
     },
     {
       id: "3",
       title: "PhotoShop",
       url: "/photoshop",
-    },
+  },
+    {
+      id: "5",
+      title: "Text Edit",
+      url: "/editor",
+  },
+  {
+      id: "6",
+      title: "Chat",
+      url: "/chat",
+    },{
+      id: "7",
+      title: "Profile",
+      url: "/profile",
+  },
+    
   ];
 
 
