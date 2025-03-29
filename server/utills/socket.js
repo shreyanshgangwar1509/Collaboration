@@ -1,135 +1,3 @@
-// import jwt from 'jsonwebtoken';
-// import { ACTIONS } from "../constants/Events.js";
-// import { io } from "../index.js"; // Adjust path based on your project structure
-// import { User } from '../models/user.model.js';
-// const userSocketMap = {};
-
-// const getAllConnectedClients = (roomId) => {
-//   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
-//     (socketId) => ({
-//       socketId,
-//       name: userSocketMap[socketId]?.name || "Anonymous",
-//     })
-//   );
-// };
-
-
-// const socketIo = (io) => {
-
-//   io.on("connection", async(socket) => {
-//     // Get user from authentication
-//     // console.log(socket);
-    
-//     const token = socket.handshake.auth?.token;
-
-//     // console.log(token);
-//     // console.log(JSON.stringify(user));
-//     const decodedData = jwt.verify(token, process.env.JWT_SECERET);
-    
-//     console.log("User connected:", decodedData.userId);
-//     const user =await User.findById(decodedData.userId);
-//     if (!user) {
-//       console.log('User not exist');
-      
-//     }
-//     // Join room handler
-//     socket.on("join room", (groupId) => {
-//       console.log("Joining group ",groupId);
-      
-//       socket.join(groupId);
-//       userSocketMap[socket.id] = { user, room: groupId };
-
-//       // Get all connected users in the room
-//       const usersInRoom = getAllConnectedClients(groupId);
-//       io.in(groupId).emit("users in room", usersInRoom);
-
-//       socket.to(groupId).emit("notification", {
-//         type: "USER_JOINED",
-//         message: `${user?.name} has joined`,
-//         user,
-//       });
-//     });
-
-//     // Leave room handler
-//     socket.on("leave room", (groupId) => {
-//       console.log(`${user?.name} leaving room:`, groupId);
-//       socket.leave(groupId);
-
-//       if (userSocketMap[socket.id]) {
-//         delete userSocketMap[socket.id];
-//         socket.to(groupId).emit("user left", user?._id);
-//       }
-//     });
-
-//     // New message handler
-//     socket.on("new message", (message) => {
-//       socket.to(message.groupId).emit("message received", message);
-//     });
-
-//     // Typing indicators
-//     socket.on("typing", ({ groupId, name }) => {
-//       socket.to(groupId).emit("user typing", { name });
-//     });
-
-//     socket.on("stop typing", ({ groupId }) => {
-//       const userInfo = userSocketMap[socket.id];
-//       if (userInfo) {
-//         socket.to(groupId).emit("user stop typing", {
-//           name: userInfo.user?.name,
-//         });
-//       }
-//     });
-
-//     // Coding events
-//     socket.on(ACTIONS.JOIN, ({ roomId, name }) => {
-//       userSocketMap[socket.id] = name;
-//       socket.join(roomId);
-//       const clients = getAllConnectedClients(roomId);
-
-//       // Notify all clients about new user
-//       clients.forEach(({ socketId }) => {
-//         io.to(socketId).emit(ACTIONS.JOINED, {
-//           clients,
-//           name,
-//           socketId: socket.id,
-//         });
-//       });
-//     });
-
-//     socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
-//       socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
-//     });
-
-//     socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
-//       io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
-//     });
-
-//     // Handle disconnection
-//     socket.on("disconnecting", () => {
-//       const rooms = [...socket.rooms];
-
-//       rooms.forEach((roomId) => {
-//         socket.to(roomId).emit(ACTIONS.DISCONNECTED, {
-//           socketId: socket.id,
-//           name: userSocketMap[socket.id]?.name || "Anonymous",
-//         });
-//       });
-
-//       delete userSocketMap[socket.id];
-//     });
-
-//     socket.on("disconnect", () => {
-//       console.log(`${user?.name} disconnected`);
-//       if (userSocketMap[socket.id]) {
-//         const userData = userSocketMap[socket.id];
-//         socket.to(userData.room).emit("user left", user?._id);
-//         delete userSocketMap[socket.id];
-//       }
-//     });
-//   });
-// };
-
-// export default socketIo;
 
 
 import dotenv from 'dotenv';
@@ -225,31 +93,70 @@ const socketIo = (io) => {
         });
       });
 
-      socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
-        socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
-      });
+    
+      // for whiteboard
+      socket.on('join_whiteboard_room', (roomid) => {
+        console.log("Joining group", roomid);
+        console.log(user?.name);
+        socket.join(roomid);
+        userSocketMap[socket.id] = { user,name:user.name, room: roomid };
 
-      socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
-        io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
-      });
+        const usersInRoom = getAllConnectedClients(roomid);
+        io.in(roomid).emit("users in whiteboard room", usersInRoom);
 
-      socket.on("disconnecting", () => {
-        const rooms = [...socket.rooms];
-
-        rooms.forEach((roomId) => {
-          socket.to(roomId).emit(ACTIONS.DISCONNECTED, {
-            socketId: socket.id,
-            name: userSocketMap[socket.id]?.name || "Anonymous",
-          });
+        io.in(roomid).emit("notification", {
+          type: "USER_JOINED",
+          message: `${user.name} has joined`,
+          user,
         });
-      });
+      })
+      socket.on('leave_whitwboard_room', (roomid) => {
+        console.log(`${user?.name || "Unknown User"} leaving room:`, roomid);
+        socket.leave(roomid);
 
-      // for code editor
+        if (userSocketMap[socket.id]) {
+          delete userSocketMap[socket.id];
+          io.in(roomid).emit("user left", user?._id);
+        }
+      })
+      socket.on('canvas-data', (data) =>{
+        socket.broadcast.emit("canvas-data", data)
+      })
+
       
+      // for editor 
+      socket.on("join editor", (roomid) => {
+        console.log("Joining group", roomid);
+        console.log(user?.name);
+        socket.join(roomid);
+        userSocketMap[socket.id] = { user,name:user.name, room: roomid };
 
-    socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
-    });
+        const usersInRoom = getAllConnectedClients(roomid);
+        io.in(roomid).emit("users in editor room", usersInRoom);
+
+        io.in(roomid).emit("", {
+          type: "USER_JOINED",
+          message: `${user.name} has joined`,
+          user,
+        });
+      })
+
+      socket.on("editor_change", ({ roomid, code }) => {
+        // console.log("Changing the code")
+        socket.broadcast.emit("editor_change", {roomid,newCode:code});
+});
+
+
+      socket.on("leave_editor", (roomid) => {
+        console.log(`${user?.name || "Unknown User"} leaving room:`, roomid);
+        socket.leave(roomid);
+
+        if (userSocketMap[socket.id]) {
+          delete userSocketMap[socket.id];
+          io.in(roomid).emit("user left", user?._id);
+        }
+      })
+
 
       socket.on("disconnect", () => {
         const userData = userSocketMap[socket.id];

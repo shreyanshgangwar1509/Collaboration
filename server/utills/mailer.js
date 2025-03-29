@@ -5,13 +5,13 @@ export async function sendOtpEmail(recipientEmail, otp) {
     throw new Error("Recipient email is required");
   }
 
-  // Check environment variables
+  
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error("Missing email credentials in environment variables");
     throw new Error("Email configuration error");
   }
 
-  // Configure SMTP settings
+  
   const transporter = nodemailer.createTransport({
     service: "Gmail", // Replace with your email service if different
     auth: {

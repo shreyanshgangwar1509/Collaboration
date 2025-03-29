@@ -1,10 +1,14 @@
 import React from "react";
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import { ChakraProvider } from "@chakra-ui/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Login from "./Pages/Auth/Login";
 import Profile from "./Pages/Auth/Profile";
 import Register from "./Pages/Auth/Register";
 import Chat from "./Pages/Chat/Chat";
+import Chatbot from "./Pages/chatbot/Chatbot";
 import CodingEditor from "./Pages/Coding/CodingEditor";
 import CodingHome from "./Pages/Coding/CodingHome";
 import DocEditor from "./Pages/Docs/DocEditor";
@@ -13,7 +17,6 @@ import PPTEditor from "./Pages/PPT/PPTEditor";
 import WhiteBoard from "./Pages/WhiteBoard/WhiteBoard";
 import PhotoEditor from "./Pages/PhotoShop/PhotoEditor";
 import Layout from "./layout/Layout";
-import { ChakraProvider } from "@chakra-ui/react";
 
 const App = () => {
   return (
