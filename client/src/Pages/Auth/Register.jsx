@@ -17,14 +17,6 @@ export default function Register() {
   const [message, setMessage] = useState("");
   const [isOtpScreen, setIsOtpScreen] = useState(false); // Determines if OTP screen should show
 
-  // Worker-specific fields
-  const [workerName, setWorkerName] = useState("");
-  const [service, setService] = useState("");
-  const [phone, setPhone] = useState("");
-  const [location, setLocation] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [identityType, setIdentityType] = useState("");
-  const [identityNumber, setIdentityNumber] = useState("");
 
   const navigate = useNavigate();
 
@@ -37,10 +29,7 @@ export default function Register() {
     }
 
     try {
-      const identity = {
-        identityNumber,
-        identityType,
-      }
+      
       const payload = { email, password, name };
 
       const response = await api.post("/api/auth/signup", payload);

@@ -98,7 +98,7 @@ const logoutUser = async (req, res) => {
   }
 };
 const verifyemail = async (req, res) => {
-  const { email, otp ,role} = req.body;
+  const { email, otp } = req.body;
   console.log('Email verification is happening');
 
   try {
@@ -109,7 +109,7 @@ const verifyemail = async (req, res) => {
     }
 
     // Use role from token
-    const Model = role === 'user' ? User : Worker;
+    const Model = User 
 
     const user = await Model.findOne({ email });
     if (!user) {
