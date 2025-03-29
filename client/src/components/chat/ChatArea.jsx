@@ -28,7 +28,9 @@ import UsersList from "./UsersList";
     const typingTimeoutRef = useRef(null);
     const toast = useToast();
   
-    const currentUser = JSON.parse(localStorage.getItem("userinfo") )|| {};
+    const currentUser = JSON.parse(localStorage.getItem("userinfo")) || {};
+    console.log(currentUser);
+    
     // const currentUser = jwtDecode(user);
     useEffect(() => {
       setMessages(sampleMessages);
@@ -356,7 +358,7 @@ import UsersList from "./UsersList";
                   <Box
                     key={message._id}
                     alignSelf={
-                      message.sender._id === currentUser?._id
+                      message.sender?._id === currentUser?._id
                         ? "flex-start"
                         : "flex-end"
                     }
@@ -367,13 +369,13 @@ import UsersList from "./UsersList";
                         align="center"
                         mb={1}
                         justifyContent={
-                          message.sender._id === currentUser?._id
+                          message.sender?._id === currentUser?._id
                             ? "flex-start"
                             : "flex-end"
                         }
                         gap={2}
                       >
-                        {message.sender._id === currentUser?._id ? (
+                        {message.sender?._id === currentUser?._id ? (
                           <>
                             <Avatar size="xs" name={message.sender.username} />
                             <Text fontSize="xs" color="gray.500">
@@ -384,22 +386,22 @@ import UsersList from "./UsersList";
                         ) : (
                           <>
                             <Text fontSize="xs" color="gray.500">
-                              {message.sender.name} •{" "}
+                              {message.sender?.name} •{" "}
                               {formatTime(message.createdAt)}
                             </Text>
-                            <Avatar size="xs" name={message.sender.name} />
+                            <Avatar size="xs" name={message.sender?.name} />
                           </>
                         )}
                       </Flex>
   
                       <Box
                         bg={
-                          message?.sender._id === currentUser?._id
+                          message?.sender?._id === currentUser?._id
                             ? "blue.500"
                             : "white"
                         }
                         color={
-                          message?.sender._id === currentUser?._id
+                          message?.sender?._id === currentUser?._id
                             ? "white"
                             : "gray.800"
                         }
