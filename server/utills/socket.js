@@ -251,10 +251,6 @@ const socketIo = (io) => {
         console.log("User disconnected:", socket.id);
     });
 
-
-
-
-
       socket.on("disconnect", () => {
         const userData = userSocketMap[socket.id];
         if (userData) {
