@@ -1,6 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { navigation } from "../constants/constants.js";
-
 const Header = () => {
   const { hash } = useLocation();
   const navigate = useNavigate();
