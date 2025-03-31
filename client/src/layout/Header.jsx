@@ -23,8 +23,8 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-x-4">
-          <button className="px-6 py-2 rounded-lg text-white bg-purple-800 hover:bg-purple-900 border-2 hover:border-white transition-all duration-300">
-            onClick={()=>navigate('/register')}
+          <button className="px-6 py-2 rounded-lg text-white bg-purple-800 hover:bg-purple-900 border-2 hover:border-white transition-all duration-300"
+            onClick={()=>navigate('/register')}>
             New Account
           </button>
 
