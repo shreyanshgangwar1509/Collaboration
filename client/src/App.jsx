@@ -18,7 +18,7 @@ const PhotoEditor = lazy(() => import("./Pages/PhotoShop/PhotoEditor"));
 const PPTEditor = lazy(() => import("./Pages/PPT/PPTEditor"));
 const Container = lazy(() => import("./Pages/WhiteBoard/container/Container"));
 const WhiteHome = lazy(() => import("./Pages/WhiteBoard/WhiteRoom"));
-
+const Header = lazy(()=>import('"./layout/Header"'))
 const App = () => {
   return (
     <>
