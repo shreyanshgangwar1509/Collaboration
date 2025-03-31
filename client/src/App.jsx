@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 const Layout = lazy(() => import("./layout/Layout"));
+const Header = lazy(() => import("./layout/Header"));  // ✅ Fixed lazy import
 const Login = lazy(() => import("./Pages/Auth/Login"));
 const Profile = lazy(() => import("./Pages/Auth/Profile"));
 const Register = lazy(() => import("./Pages/Auth/Register"));
@@ -18,12 +19,14 @@ const PhotoEditor = lazy(() => import("./Pages/PhotoShop/PhotoEditor"));
 const PPTEditor = lazy(() => import("./Pages/PPT/PPTEditor"));
 const Container = lazy(() => import("./Pages/WhiteBoard/container/Container"));
 const WhiteHome = lazy(() => import("./Pages/WhiteBoard/WhiteRoom"));
-const Header = lazy(()=>import('"./layout/Header"'))
+
 const App = () => {
   return (
     <>
       <Toaster position="top-center" />
-      <Header />
+      <Suspense fallback={<div>Loading Header...</div>}>
+        <Header/>
+      </Suspense>
       <Router>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
