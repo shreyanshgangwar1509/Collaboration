@@ -71,7 +71,7 @@ function CodingEditor({ username, socketRef, roomid, seteditor }) {
   const runCode = async () => {
     setIsCompiling(true);
     try {
-      const response = await axios.post("http://localhost:3000/compile", {
+      const response = await axios.post(`${import.meta.env.VITE_SERVER}/compile`, {
         code,
         language: selectedLanguage,
       });

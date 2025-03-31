@@ -131,3 +131,6 @@ export const navigation = [
     },
   ];
   
+
+
+const server = 'http://localhost:3000';

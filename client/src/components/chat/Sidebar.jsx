@@ -56,7 +56,7 @@ import { useNavigate } from "react-router-dom";
           return;
         }
 
-        const { data } = await axios.get("http://localhost:3000/api/groups", {
+        const { data } = await axios.get(`${import.meta.env.VITE_SERVER}/api/groups`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -95,7 +95,7 @@ import { useNavigate } from "react-router-dom";
     const handleCreateGroup=async()=>{
       try {
         const token = localStorage.getItem('token');
-        await axios.post("http://localhost:3000/api/groups/create",{
+        await axios.post(`${import.meta.env.VITE_SERVER}/api/groups/create`,{
           name:newGroupName,
           description:newGroupDescription,
         },{
@@ -134,7 +134,7 @@ import { useNavigate } from "react-router-dom";
     const handleJoinGroup=async(groupId)=>{
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`http://localhost:3000/api/groups/${groupId}/join`,{},{
+        await axios.post(`${import.meta.env.VITE_SERVER}/api/groups/${groupId}/join`,{},{
           headers:{
             Authorization:`Bearer ${token}`,
           }
@@ -168,7 +168,7 @@ import { useNavigate } from "react-router-dom";
           }
 
           const response = await axios.post(
-            `http://localhost:3000/api/groups/${groupId}/leave`,
+            `${import.meta.env.VITE_SERVER}/api/groups/${groupId}/leave`,
             {}, // Empty request body if needed
             {
               headers: {
@@ -203,7 +203,7 @@ import { useNavigate } from "react-router-dom";
     // Sample groups data
     const newgrouphandler = async(e) => {
       try {
-        const response = await axios.post(`http://localhost:3000/api/groups/${groupId}/leave`,{
+        const response = await axios.post(`${import.meta.env.VITE_SERVER}/api/groups/${groupId}/leave`,{
         },{
           headers:{
             Authorization:`Bearer ${token}`,

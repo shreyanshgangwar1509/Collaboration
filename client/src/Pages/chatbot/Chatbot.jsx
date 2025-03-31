@@ -6,7 +6,7 @@ import { IoSend } from "react-icons/io5";
 import "./Chatbot.css";
 //Function to make the http request(useMutation);
 const sendMessageAPI=async(message)=>{
-    const res=await axios.post("http://localhost:3000/api/chatbot/ask",{message});
+    const res=await axios.post(`${import.meta.env.VITE_SERVER}/api/chatbot/ask`,{message});
     return res.data;
 }
 const Chatbot=()=>{

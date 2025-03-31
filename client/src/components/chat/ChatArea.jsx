@@ -112,7 +112,7 @@ import UsersList from "./UsersList";
           const token = localStorage.getItem("token");
           try {
             const { data } = await axios.get(
-              `http://localhost:3000/api/messages/${selectedGroup?._id}`,
+              `${import.meta.env.VITE_SERVER}/api/messages/${selectedGroup?._id}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             setMessages(data.reverse());
@@ -131,7 +131,7 @@ import UsersList from "./UsersList";
         const token = localStorage.getItem("token");
         try {
           const { data } = await axios.post(
-            "http://localhost:3000/api/messages",
+           `${import.meta.env.VITE_SERVER}/api/messages`,
             { content: newMessage, groupId: selectedGroup?._id },
             { headers: { Authorization: `Bearer ${token}` } }
           );

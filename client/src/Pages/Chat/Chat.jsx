@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import ChatArea from "../../components/chat/ChatArea";
 import Sidebar from "../../components/chat/Sidebar";
 
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = import.meta.env.VITE_SERVER;
 
 const Chat = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);

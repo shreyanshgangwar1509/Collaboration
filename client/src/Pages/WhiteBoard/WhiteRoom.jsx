@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 import WhiteBoard from "./WhiteBoard";
 
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = import.meta.env.VITE_SERVER;
 
 function WhiteHome() {
   const [roomId, setRoomId] = useState("");

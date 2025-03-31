@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client';
 import { v4 as uuid } from "uuid";
 import CodingEditor from "./CodingEditor";
-const ENDPOINT = 'http://localhost:3000'
+const ENDPOINT = import.meta.env.VITE_SERVER
 function CodingHome() {
   const [roomId, setRoomId] = useState("");
   const [username, setUsername] = useState("");

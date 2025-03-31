@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
-  baseURL:  "http://localhost:3000", 
+  baseURL:  import.meta.env.VITE_SERVER, 
 });
 
 export default function Register() {
