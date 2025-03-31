@@ -8,16 +8,7 @@ export const navigation = [
       title: "Code",
       url: "/home/editor",
     },
-    {
-      id: "1",
-      title: "PPT",
-      url: "/ppt",
-    },
-    {
-      id: "2",
-      title: "Doc",
-      url: "/doc",
-  },
+    
     {
       id: "4",
       title: "WhiteBoard",
