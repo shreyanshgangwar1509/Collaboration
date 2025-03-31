@@ -23,6 +23,7 @@ const App = () => {
   return (
     <>
       <Toaster position="top-center" />
+      <Header />
       <Router>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>

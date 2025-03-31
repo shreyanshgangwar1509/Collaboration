@@ -1,147 +1,108 @@
-
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
-  baseURL:  import.meta.env.VITE_SERVER, 
+  baseURL: import.meta.env.VITE_SERVER,
 });
 
-export default function Register() {
-  const [email, setEmail] = useState("");
-  const [name, setname] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [otp, setOtp] = useState("");
-  const [message, setMessage] = useState("");
-  const [isOtpScreen, setIsOtpScreen] = useState(false); // Determines if OTP screen should show
-
-
+export default function LoginPage() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegisterSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    setLoading(true);
+    setErrorMessage("");
 
     try {
-      
-      const payload = { email, password, name };
+      const response = await fetch(`${import.meta.env.VITE_SERVER}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const response = await api.post("/api/auth/signup", payload);
-
-      if (response.status === 200) {
-        setIsOtpScreen(true); 
+      if (!response.ok) {
+        throw new Error("Invalid email or password. Please try again.");
       }
-      if (response.status === 403) setError("Account already exists");
-    } catch (err) {
-      setError("Registration failed");
-    }
-  };
 
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await api.post(`/api/auth/verifyemail`, { otp, email });
-      setMessage(response.data.message);
-      navigate("/"); // Redirect to home on successful OTP verification
+      const data = await response.json();
+      console.log(data.accesstoken);
+
+      // Save token in local storage
+      localStorage.setItem("token", data.accesstoken);
+      
+      // Navigate to profile
+      navigate("/profile");
     } catch (error) {
-      console.error("Error during OTP verification:", error.response?.data);
-      setMessage(error.response?.data?.message || "Invalid OTP. Please try again.");
+      console.error(error);
+      setErrorMessage("Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-        {isOtpScreen ? (
-          <>
-            {/* OTP Verification Form */}
-            <h1 className="text-2xl font-bold text-center mb-6">Enter OTP</h1>
-            <form onSubmit={handleOtpSubmit} className="space-y-4">
-              <label className="block text-gray-700 font-semibold">OTP</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                className="text-black bg-white w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                className=" w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-              >
-                Verify OTP
-              </button>
-            </form>
-            {message && <p className="mt-4 text-center text-red-500">{message}</p>}
-          </>
-        ) : (
-          <>
-            {/* Role Selection */}
-            <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
-            {error && <p className="text-red-500">{error}</p>}
-            <form onSubmit={handleRegisterSubmit} className="space-y-4">
-              <div>
-                <label className="block mb-2">Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setname(e.target.value)}
-                  className="text-black bg-white border p-2 w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-2">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="text-black bg-white border p-2 w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-2">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="text-black bg-white border p-2 w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-2">Confirm Password</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="text-black bg-white border p-2 w-full"
-                  required
-                />
-              </div>
 
-              
-              <button
-                type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
-              >
-                Register
-              </button>
-            </form>
-            <p className="text-center mt-4 text-gray-500">
-              Already have an account?{" "}
-              <a href="/login" className="text-blue-600 hover:underline">
-                Login
-              </a>
-            </p>
-          </>
+  return (
+    <div className="flex w-full items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full animate-fade-in">
+        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+
+        {errorMessage && (
+          <div className="text-red-500 text-center mb-4">{errorMessage}</div>
         )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700 font-semibold">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none bg-white focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-semibold">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="text-black w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 bg-white focus:ring-blue-500 transition-all duration-200"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full text-white font-semibold py-2 rounded-lg transition-all duration-200 flex items-center justify-center ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-t-2 border-gray-200 border-t-white rounded-full animate-spin"></div>
+                Logging in...
+              </div>
+            ) : (
+              "Login"
+            )}
+          </button>
+        </form>
+
+        <p className="text-center mt-4 text-gray-500">
+          Don't have an account?{" "}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register
+          </a>
+        </p>
       </div>
     </div>
   );

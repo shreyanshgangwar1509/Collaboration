@@ -55,17 +55,16 @@
 // export default Home;
 
 import React from "react";
-import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
-import Hero from "./Hero.jsx";
-import Features from "./Features.jsx";
 import AiSection from "./AiSection.jsx";
 import Bottom from "./Bottom.jsx";
+import Features from "./Features.jsx";
+import Hero from "./Hero.jsx";
 
 const Home = () => {
   return (
     <>
-      <Header />
+      
       <Hero />
       <Features/>
       <AiSection/>
