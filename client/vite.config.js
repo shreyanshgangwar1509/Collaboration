@@ -8,5 +8,9 @@ export default defineConfig({
     include: ["@chakra-ui/react", "@monaco-editor/react"],
     exclude: ['react-router'],
   },
+   base: "/",
+  build: {
+    outDir: "dist",
+  },
   
 })
