@@ -38,12 +38,16 @@ const Profile = () => {
     return <p className="text-center text-red-500">Failed to load profile.</p>;
   }
 
+  const getInitialAvatar = (name) => {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       <div className="bg-white shadow-lg rounded-lg p-8 text-center max-w-sm">
         <img
           className="w-24 h-24 rounded-full mx-auto mb-4"
-          src={user.avatar || "https://via.placeholder.com/150"}
+          src={user.avatar || getInitialAvatar(user.name)}
           alt={user.name}
         />
         <h2 className="text-2xl font-semibold mb-2">{user.name}</h2>

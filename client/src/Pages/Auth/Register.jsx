@@ -68,7 +68,7 @@ export default function Register() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
-                className="bg-white w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="text-black bg-white w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="submit"
@@ -91,7 +91,7 @@ export default function Register() {
                   type="text"
                   value={name}
                   onChange={(e) => setname(e.target.value)}
-                  className=" bg-white border p-2 w-full"
+                  className="text-black bg-white border p-2 w-full"
                   required
                 />
               </div>
@@ -101,7 +101,7 @@ export default function Register() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-white border p-2 w-full"
+                  className="text-black bg-white border p-2 w-full"
                   required
                 />
               </div>
@@ -111,7 +111,7 @@ export default function Register() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-white border p-2 w-full"
+                  className="text-black bg-white border p-2 w-full"
                   required
                 />
               </div>
@@ -121,7 +121,7 @@ export default function Register() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-white border p-2 w-full"
+                  className="text-black bg-white border p-2 w-full"
                   required
                 />
               </div>
