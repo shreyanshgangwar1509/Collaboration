@@ -74,9 +74,7 @@ cd frontend
 # Install dependencies
 npm install
 
-## 🚀 Running the Application
-
-### Development Mode
+### 4.🚀 Running the Application
 
 #### Start Backend Server
 ```bash
