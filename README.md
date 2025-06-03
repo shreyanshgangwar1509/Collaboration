@@ -69,7 +69,7 @@ cd Collaboration
 
 ```bash
 # Navigate to backend directory
-cd backend
+cd server
 
 # Install dependencies
 npm install
@@ -85,7 +85,7 @@ cp .env.sample .env
 
 ```bash
 # Navigate to frontend directory
-cd ../frontend
+cd client
 
 # Install dependencies
 npm install
@@ -105,7 +105,7 @@ node index.js
 ### Start Frontend Server
 
 ```bash
-cd /client
+cd client
 npm run dev
 ```
 
@@ -141,5 +141,9 @@ npm run dev
 
 ---
 
-**Built with ❤️ using the MERN Stack**
+🔗 Live project:
+Check out the deployed project here:
+👉 collaboration-iota.vercel.app
+
+
 
