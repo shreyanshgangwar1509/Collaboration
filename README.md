@@ -144,7 +144,7 @@ npm run dev
 ### 🔗 Live Demo
 
 Check out the deployed project here:  
-👉 [collaboration-iota.vercel.app](collaboration-iota.vercel.app)
+👉 [https://collaboration-iota.vercel.app/](https://collaboration-iota.vercel.app/)
 
 
 
