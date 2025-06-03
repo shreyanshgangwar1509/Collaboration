@@ -98,14 +98,14 @@ npm install
 ### Start Backend Server
 
 ```bash
-cd backend
+cd server
 node index.js
 ```
 
 ### Start Frontend Server
 
 ```bash
-cd ../frontend
+cd /client
 npm run dev
 ```
 
