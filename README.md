@@ -1,4 +1,4 @@
-# 🚀 Real-Time Collaboration Platform
+# Real-Time Collaboration Platform
 
 A comprehensive real-time collaboration platform built with the **MERN stack**, enabling teams to work together seamlessly across multiple tools and interfaces.
 
@@ -25,20 +25,20 @@ A comprehensive real-time collaboration platform built with the **MERN stack**, 
 
 ## 🛠️ Tech Stack
 
-### 💻 Frontend
+### Frontend
 
 * **React.js** – UI library
 * **Tailwind CSS** – Utility-first CSS framework for styling
 * **Socket.io-client** – Real-time communication
 
-### ⚙️ Backend
+### Backend
 
 * **Node.js** – JavaScript runtime
 * **Express.js** – Web application framework
 * **Socket.io** – Real-time bidirectional communication
 * **JWT** – Secure authentication using JSON Web Tokens
 
-### 💃 Database
+### Database
 
 * **MongoDB** – NoSQL database
 * **Mongoose** – MongoDB object modeling
