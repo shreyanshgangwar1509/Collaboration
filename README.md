@@ -141,9 +141,13 @@ npm run dev
 
 ---
 
-🔗 Live project:
-Check out the deployed project here:
-👉 collaboration-iota.vercel.app
+### 🔗 Live Demo
+
+Check out the deployed project here:  
+👉 [collaboration-iota.vercel.app](collaboration-iota.vercel.app)
+
+
+
 
 
 
