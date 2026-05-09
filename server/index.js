@@ -3,39 +3,64 @@ import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import { Server as socket } from 'socket.io';
-import { default as authroutes, default as userRouter } from './routes/auth.routes.js';
+import errorHandler from "./middlewares/error.js";
+import authroutes from './routes/auth.routes.js';
 import chatroutes from './routes/chatbot.routes.js';
 import groupRouter from './routes/group.routes.js';
 import messageRouter from './routes/message.routes.js';
+import activityRoutes from './routes/activity.routes.js';
+import savedRoutes from './routes/saved.routes.js';
 import { connectdb } from './utills/connectdb.js';
+import coderoutes from './routes/code.routes.js';
 import socketIo from './utills/socket.js';
+
 
 dotenv.config();
 
 const app = express();
-const server=http.createServer(app);
-const io=new socket(server,{
-    cors:{
-        origin:"*"
-    },
+const server = http.createServer(app);
+const io = new socket(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  },
 });
-//middlewares
-app.use(cors());
-app.use(express.json());
-//connect to db
+
+// Middlewares
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+// Connect DB
 await connectdb();
 
-//initialize
+// Initialize Socket
 socketIo(io);
-//our routes
+
+// Routes
 app.use("/api/auth", authroutes);
-app.use("/api/users",userRouter);
-app.use("/api/groups",groupRouter);
-app.use("/api/messages",messageRouter);
-app.use("api/chatbot/ask", chatroutes);
-//start server
-const PORT=process.env.PORT || 3000;
-server.listen(PORT, console.log(`server is up and running on port,${PORT}`));
+app.use("/api/groups", groupRouter);
+app.use("/api/messages", messageRouter);
+// FIX: was "api/chatbot/ask" — missing leading slash
+app.use("/api/chatbot", chatroutes);
+app.use("/api/code", coderoutes);
+app.use("/api/activity", activityRoutes);
+app.use("/api/saved", savedRoutes);
+
+
+
+
+// Health check
+app.get("/health", (req, res) => res.json({ status: "ok", timestamp: new Date() }));
+
+// Error handling middleware (must be LAST)
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 export { io };
-

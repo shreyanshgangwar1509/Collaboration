@@ -1,112 +1,40 @@
-import {
-  Avatar,
-  Badge,
-  Box,
-  Flex,
-  Icon,
-  Text,
-  Tooltip,
-  VStack,
-} from "@chakra-ui/react";
-import { FiCircle, FiUsers } from "react-icons/fi";
-  
-  const UsersList = ({ users }) => {
-    return (
-      <Box
-        h="100%"
-        w="100%"
-        borderLeft="1px solid"
-        borderColor="gray.200"
-        bg="white"
-        position="relative"
-        overflow="hidden"
-      >
-        {/* Header */}
-        <Flex
-          p={5}
-          borderBottom="1px solid"
-          borderColor="gray.200"
-          bg="white"
-          align="center"
-          position="sticky"
-          top={0}
-          zIndex={1}
-          boxShadow="sm"
-        >
-          <Icon as={FiUsers} fontSize="20px" color="blue.500" mr={2} />
-          <Text fontSize="lg" fontWeight="bold" color="gray.700">
-            Members
-          </Text>
-          <Badge
-            ml={2}
-            colorScheme="blue"
-            borderRadius="full"
-            px={2}
-            py={0.5}
-            fontSize="xs"
-          >
-            {users.length}
-          </Badge>
-        </Flex>
-  
-        {/* Users List */}
-        <Box flex="1" overflowY="auto" p={4}>
-          <VStack align="stretch" spacing={3} >
-            {users.map((user) => (
-              <Box key={user._id}>
-                <Tooltip label={`${user.name} is online`} placement="left">
-                  <Flex
-                    p={3}
-                    bg="white"
-                    borderRadius="lg"
-                    shadow="sm"
-                    align="center"
-                    borderWidth="1px"
-                    borderColor="gray.100"
-                  >
-                    <Avatar
-                      size="sm"
-                      name={user.name}
-                      bg="blue.500"
-                      color="white"
-                      mr={3}
-                    />
-                    <Box flex="1">
-                      <Text
-                        fontSize="sm"
-                        fontWeight="medium"
-                        color="gray.700"
-                        noOfLines={1}
-                      >
-                        {user.name}
-                      </Text>
-                    </Box>
-                    <Flex
-                      align="center"
-                      bg="green.50"
-                      px={2}
-                      py={1}
-                      borderRadius="full"
-                    >
-                      <Icon
-                        as={FiCircle}
-                        color="green.400"
-                        fontSize="8px"
-                        mr={1}
-                      />
-                      <Text fontSize="xs" color="green.600" fontWeight="medium">
-                        online
-                      </Text>
-                    </Flex>
-                  </Flex>
-                </Tooltip>
-              </Box>
-            ))}
-          </VStack>
-        </Box>
-      </Box>
-    );
-  };
-  
-  export default UsersList;
-  
+import { FiUsers } from "react-icons/fi";
+
+const getInitials = (name = "") =>
+  name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+
+const UsersList = ({ users = [] }) => {
+  return (
+    <div className="flex flex-col h-full" style={{ background: "var(--bg-secondary)" }}>
+      <div className="px-4 py-3 border-b flex items-center gap-2 flex-shrink-0" style={{ borderColor: "var(--border)" }}>
+        <FiUsers size={16} style={{ color: "#7c3aed" }} />
+        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Online</span>
+        <span className="badge badge-green ml-auto">{users.length}</span>
+      </div>
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+        {users.length === 0 ? (
+          <p className="text-xs text-center py-4" style={{ color: "var(--text-muted)" }}>No users online</p>
+        ) : (
+          users.map((user) => (
+            <div
+              key={user.socketId || user._id}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}
+            >
+              <div className="relative flex-shrink-0">
+                <div className="avatar avatar-sm">{getInitials(user.name)}</div>
+                <div className="online-dot absolute -bottom-0.5 -right-0.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{user.name}</p>
+                <p className="text-xs" style={{ color: "#10b981" }}>Online</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default UsersList;

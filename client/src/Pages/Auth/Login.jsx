@@ -1,104 +1,133 @@
 import axios from "axios";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_SERVER,
-});
+// --- Floating Orb background ---
+const FloatingOrbs = () => (
+  <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="absolute w-[500px] h-[500px] rounded-full opacity-20 blur-[100px] bg-violet-600 -top-32 -left-32 animate-orb" />
+    <div className="absolute w-[400px] h-[400px] rounded-full opacity-15 blur-[100px] bg-indigo-600 bottom-0 right-0 animate-orb" style={{ animationDelay: "3s" }} />
+    <div className="absolute w-[300px] h-[300px] rounded-full opacity-10 blur-[80px] bg-purple-500 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-orb" style={{ animationDelay: "6s" }} />
+  </div>
+);
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
     setLoading(true);
-    setErrorMessage("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER}/api/auth/login`,
+        { email, password }
+      );
 
-      if (!response.ok) {
-        throw new Error("Invalid email or password. Please try again.");
-      }
+      const { accesstoken, user } = response.data;
+      localStorage.setItem("token", accesstoken);
+      if (user) localStorage.setItem("userinfo", JSON.stringify(user));
 
-      const data = await response.json();
-      console.log(data.accesstoken);
-
-      // Save token in local storage
-      localStorage.setItem("token", data.accesstoken);
-      
-      // Navigate to profile
+      toast.success(`Welcome back, ${user?.name || "User"}! 🎉`);
       navigate("/profile");
     } catch (error) {
-      console.error(error);
-      setErrorMessage("Invalid email or password. Please try again.");
+      const msg = error.response?.data?.message || "Invalid credentials. Please try again.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex w-full items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full animate-fade-in">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-animated-gradient relative p-4">
+      <FloatingOrbs />
 
-        {errorMessage && (
-          <div className="text-red-500 text-center mb-4">{errorMessage}</div>
-        )}
+      <div className="room-card animate-slide-up z-10 w-full max-w-md">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center mb-4 animate-pulse-glow">
+            <span className="text-2xl">⚡</span>
+          </div>
+          <h1 className="text-2xl font-bold gradient-text">Welcome Back</h1>
+          <p style={{ color: "var(--text-secondary)" }} className="text-sm mt-1">
+            Sign in to CollabSpace
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-semibold">Email</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+              Email Address
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none bg-white focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-black"
+              className="input-dark"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="text-black w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 bg-white focus:ring-blue-500 transition-all duration-200"
-            />
+            <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                className="input-dark pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm transition-colors"
+                style={{ color: "var(--text-muted)" }}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full text-white font-semibold py-2 rounded-lg transition-all duration-200 flex items-center justify-center ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3 mt-2"
           >
             {loading ? (
-              <span className="animate-spin border-t-2 border-white rounded-full w-5 h-5"></span>
+              <>
+                <div className="spinner" />
+                Signing in...
+              </>
             ) : (
-              "Login"
+              <>
+                <span>Sign In</span>
+                <span>→</span>
+              </>
             )}
           </button>
         </form>
 
-        <p className="text-center mt-4 text-gray-500">
+        <div className="divider" />
+
+        <p className="text-center text-sm" style={{ color: "var(--text-secondary)" }}>
           Don't have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
-            Register
-          </a>
+          <Link to="/register" className="font-semibold" style={{ color: "#a78bfa" }}>
+            Create one →
+          </Link>
         </p>
       </div>
     </div>

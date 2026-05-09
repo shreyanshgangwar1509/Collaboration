@@ -1,114 +1,164 @@
-import { Menu, X } from "lucide-react"; // optional: for hamburger icons
-import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { navigation } from "../constants/constants.js";
+import toast from "react-hot-toast";
+
+const navItems = [
+  { id: "code",   title: "Code",       url: "/home/editor", icon: "🖊️" },
+  { id: "wb",     title: "Whiteboard", url: "/whiteboard",  icon: "🎨" },
+  { id: "docs",   title: "Docs",       url: "/docs",        icon: "📄" },
+  { id: "ppt",    title: "PPT",        url: "/ppt",         icon: "📊" },
+  { id: "photo",  title: "Photo",      url: "/photoshop",   icon: "🖼️" },
+  { id: "chat",   title: "Chat",       url: "/chat",        icon: "💬" },
+  { id: "ai",     title: "AI Chat",    url: "/chatbot",     icon: "🤖" },
+];
+
+const getInitials = (name = "") =>
+  name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
 const Header = () => {
-  const { hash } = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState(null);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const info = localStorage.getItem("userinfo");
+    if (info) setUser(JSON.parse(info));
+  }, [token]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userinfo");
+    setUser(null);
+    toast.success("Logged out successfully");
+    navigate("/");
     window.location.reload();
   };
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full bg-n-8/90 backdrop-blur-sm border-b border-n-6">
-      <div className="flex justify-between items-center px-6 py-3 lg:px-8">
-        {/* Hamburger icon for mobile */}
-        <div className="lg:hidden">
-          <button
-            onClick={() => setDrawerOpen(!drawerOpen)}
-            className="text-white focus:outline-none"
-          >
-            {drawerOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+    <header
+      className="fixed top-0 left-0 z-50 w-full transition-all duration-300"
+      style={{
+        background: scrolled ? "rgba(7,7,15,0.92)" : "rgba(7,7,15,0.6)",
+        backdropFilter: "blur(20px)",
+        borderBottom: `1px solid ${scrolled ? "rgba(124,58,237,0.3)" : "rgba(124,58,237,0.1)"}`,
+        boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.3)" : "none",
+      }}
+    >
+      <div className="flex justify-between items-center px-4 lg:px-8 h-16">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 no-underline">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white">
+            ⚡
+          </div>
+          <span className="font-bold text-lg gradient-text hidden sm:block">CollabSpace</span>
+        </Link>
 
-        {/* Desktop navigation */}
-        <nav className="hidden lg:flex">
-          <div className="flex flex-row items-center justify-center gap-x-8">
-            {navigation.map((item) => (
+        {/* Desktop Nav */}
+        <nav className="hidden lg:flex items-center gap-1">
+          {navItems.map((item) => {
+            const isActive = item.url === "/" 
+              ? location.pathname === "/" 
+              : location.pathname.startsWith(item.url);
+            return (
               <Link
                 key={item.id}
                 to={item.url}
-                className={`block font-code uppercase transition-colors hover:text-color-1 px-4 py-6 lg:text-xs lg:font-semibold ${
-                  item.url === hash ? "lg:text-n-1" : "lg:text-n-1/50"
-                } lg:hover:text-n-1`}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide transition-all duration-200 no-underline"
+                style={{
+                  color: isActive ? "#a78bfa" : "var(--text-secondary)",
+                  background: isActive ? "rgba(124,58,237,0.15)" : "transparent",
+                  borderBottom: isActive ? "2px solid #7c3aed" : "2px solid transparent",
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.background = "transparent"; }}
               >
+                <span>{item.icon}</span>
                 {item.title}
               </Link>
-            ))}
-          </div>
+            );
+          })}
         </nav>
 
-        {/* Buttons */}
-        {token ? (
+        {/* Auth Buttons */}
+        <div className="flex items-center gap-2">
+          {token ? (
+            <div className="flex items-center gap-2">
+              <Link to="/profile" className="flex items-center gap-2 no-underline group">
+                <div className="avatar avatar-sm group-hover:scale-105 transition-transform">
+                  {getInitials(user?.name || "U")}
+                </div>
+                <span className="text-sm font-medium hidden sm:block" style={{ color: "var(--text-secondary)" }}>
+                  {user?.name?.split(" ")[0] || "Profile"}
+                </span>
+              </Link>
+              <button onClick={logout} className="btn-danger text-xs px-3 py-1.5 hidden sm:block">
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-2">
+              <button onClick={() => navigate("/login")} className="btn-secondary text-sm px-4 py-2">
+                Login
+              </button>
+              <button onClick={() => navigate("/register")} className="btn-primary text-sm px-4 py-2">
+                Get Started
+              </button>
+            </div>
+          )}
+
+          {/* Mobile hamburger */}
           <button
-            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 border-2 hover:border-red-400 transition-all duration-300"
-            onClick={logout}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            className="lg:hidden p-2 rounded-lg transition-colors"
+            style={{ color: "var(--text-primary)", background: drawerOpen ? "rgba(124,58,237,0.15)" : "transparent" }}
           >
-            Logout
+            {drawerOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-        ) : (
-          <div className="hidden lg:flex items-center gap-x-4">
-            <button
-              className="px-4 py-2 rounded-lg text-white bg-purple-800 hover:bg-purple-900 border-2 hover:border-white transition-all duration-300"
-              onClick={() => navigate("/register")}
-            >
-              New Account
-            </button>
-            <button
-              className="px-4 py-2 rounded-lg text-white bg-purple-800 hover:bg-purple-900 border-2 hover:border-purple-400 transition-all duration-300"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </button>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile Drawer */}
       {drawerOpen && (
-        <div className="lg:hidden bg-n-8 border-t border-n-6 px-6 py-4 space-y-4">
-          {navigation.map((item) => (
-            <Link
-              key={item.id}
-              to={item.url}
-              onClick={() => setDrawerOpen(false)}
-              className="block text-white text-sm font-medium hover:text-color-1 transition-colors"
-            >
-              {item.title}
-            </Link>
-          ))}
-          <div className="mt-4">
+        <div className="lg:hidden animate-fade-in" style={{ background: "rgba(7,7,15,0.97)", borderTop: "1px solid var(--border)" }}>
+          <div className="px-4 py-4 space-y-1">
+            {navItems.map((item) => {
+              const isActive = item.url === "/" 
+                ? location.pathname === "/" 
+                : location.pathname.startsWith(item.url);
+              return (
+                <Link
+                  key={item.id}
+                  to={item.url}
+                  onClick={() => setDrawerOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all no-underline"
+                  style={{ color: isActive ? "#a78bfa" : "var(--text-secondary)" }}
+                >
+                  <span>{item.icon}</span>
+                  {item.title}
+                </Link>
+              );
+            })}
+            <div className="divider" />
             {token ? (
-              <button
-                className="w-full px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 border-2 hover:border-red-400 transition-all duration-300"
-                onClick={logout}
-              >
+              <button onClick={() => { logout(); setDrawerOpen(false); }} className="btn-danger w-full py-2 text-sm">
                 Logout
               </button>
             ) : (
               <div className="flex flex-col gap-2">
-                <button
-                  className="w-full px-4 py-2 rounded-lg text-white bg-purple-800 hover:bg-purple-900 border-2 hover:border-white transition-all duration-300"
-                  onClick={() => {
-                    navigate("/register");
-                    setDrawerOpen(false);
-                  }}
-                >
-                  New Account
+                <button onClick={() => { navigate("/register"); setDrawerOpen(false); }} className="btn-primary w-full py-2 text-sm">
+                  Get Started
                 </button>
-                <button
-                  className="w-full px-4 py-2 rounded-lg text-white bg-purple-800 hover:bg-purple-900 border-2 hover:border-purple-400 transition-all duration-300"
-                  onClick={() => {
-                    navigate("/login");
-                    setDrawerOpen(false);
-                  }}
-                >
+                <button onClick={() => { navigate("/login"); setDrawerOpen(false); }} className="btn-secondary w-full py-2 text-sm">
                   Login
                 </button>
               </div>

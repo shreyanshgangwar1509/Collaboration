@@ -1,8 +1,13 @@
-const errorMiddleware = (err, req, res, next) => {
-    err.message ||= "internal server error"
-    err.statusCode ||= 500;
-    return res.status(err.statusCode).json({message:err.message})
-}
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack);
 
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode);
 
-export { errorMiddleware }; 
+  res.json({
+    message: err.message,
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+  });
+};
+
+export default errorHandler;

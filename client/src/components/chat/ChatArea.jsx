@@ -1,510 +1,252 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  Icon,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-  useToast,
-  VStack
-} from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { FiInfo, FiMessageCircle, FiSend } from "react-icons/fi";
+import { FiSend, FiUsers, FiMessageCircle, FiInfo, FiX } from "react-icons/fi";
 import UsersList from "./UsersList";
-  
-  const ChatArea = ({ selectedGroup, socket, setSelectedGroup }) => {
-    // console.log(selectedGroup?._id);
-  
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState("");
-    const [connectedUsers, setConnectedUsers] = useState([]);
-    const [isTyping, setIsTyping] = useState(false);
-    const [typingUsers, setTypingUsers] = useState(new Set());
-    const messagesEndRef = useRef(null);
-    const typingTimeoutRef = useRef(null);
-    const toast = useToast();
-  
-    const currentUser = JSON.parse(localStorage.getItem("userinfo")) || {};
-    console.log(currentUser);
-    
-    // const currentUser = jwtDecode(user);
-    useEffect(() => {
-      setMessages(sampleMessages);
-      if (selectedGroup && socket) {
-        //fetch messages
-        console.log("Fetching messesgae");
-        
-        fetchMessages();
-        socket.emit("join room", selectedGroup?._id);
-        socket.on("message received", (msg) => {
-          setMessages((prev) => {
-            if (!prev.some((m) => m._id === msg._id)) {
-              return [...prev, msg];
-            }
-            return prev;
-          });
-        });
-        
-        socket.on("users in room", (users) => {
-          setConnectedUsers(users);
-        });
-  
-        socket.on("user joined", (user) => {
-          setConnectedUsers((prev) => [...prev, user]);
-        });
-  
-        socket.on("user left", (userId) => {
-          setConnectedUsers((prev) =>
-            prev.filter((user) => user?._id !== userId)
-          );
-        });
-  
-        socket.on("notification", (notification) => {
-          toast({
-            title:
-              notification?.type === "USER_JOINED" ? "New User" : "Notification",
-            description: notification.message,
-            status: "info",
-            duration: 3000,
-            isClosable: true,
-            position: "top-right",
-          });
-        });
-  
-        socket.on("user typing", ({ username }) => {
-          setTypingUsers((prev) => new Set(prev).add(username));
-        });
-  
-        socket.on("user stop typing", ({ username }) => {
-          setTypingUsers((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(username);
-            return newSet;
-          });
-        });
-        // console.log(connectedUsers);
-        
-        //clean up
-        return () => {
-          socket.emit("leave room", selectedGroup?._id);
-          socket.off("message received");
-          socket.off("users in room");
-          socket.off("user joined");
-          socket.off("user left");
-          socket.off("notification");
-          socket.off("user typing");
-          socket.off("user stop typing");
-        };
-      }
-    }, [selectedGroup, socket, toast]);
-    //fetch messages
-    useEffect(() => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
-    }, [messages]);
 
-    const fetchMessages = async () => {
-          const token = localStorage.getItem("token");
-          try {
-            const { data } = await axios.get(
-              `${import.meta.env.VITE_SERVER}/api/messages/${selectedGroup?._id}`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            setMessages(data.reverse());
+const getInitials = (name = "") =>
+  name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
-          } catch (error) {
-            // console.log(error);
-            
-            console.error(error);
-          }
-        };
+const formatTime = (date) =>
+  new Date(date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
-  
-    //send message
-    const sendMessage = async () => {
-        if (!newMessage.trim()) return;
-        const token = localStorage.getItem("token");
-        try {
-          const { data } = await axios.post(
-           `${import.meta.env.VITE_SERVER}/api/messages`,
-            { content: newMessage, groupId: selectedGroup?._id },
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          socket.emit("new message", { ...data, groupId: selectedGroup?._id });
-          setMessages([...messages, data]);
-          setNewMessage("");
-        } catch (error) {
-          toast({
-            title: "Error sending message",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-      };
+const ChatArea = ({ selectedGroup, socket, setSelectedGroup }) => {
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [connectedUsers, setConnectedUsers] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState(new Set());
+  const [showUsers, setShowUsers] = useState(false);
+  const messagesEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
-    //handleTyping
-    const handleTyping = (e) => {
-      const currentUser = JSON.parse(localStorage.getItem('userinfo')) || {}
-      // console.log(currentUser.name);
-      
-      setNewMessage(e.target.value);
-      if (!isTyping && selectedGroup) {
-        setIsTyping(true);
-        socket.emit("typing", {
-          groupId: selectedGroup?._id,
-          username: currentUser.name,
-        });
-      }
-      //clear existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      //set new timeout
-      typingTimeoutRef.current = setTimeout(() => {
-        if (selectedGroup) {
-          socket.emit("stop typing", {
-            groupId: selectedGroup?._id,
-          });
-        }
-        setIsTyping(false);
-      }, 2000);
-    };
-    //format time
-    const formatTime = (date) => {
-      return new Date(date).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    };
-    //render typing indicator
-    const renderTypingIndicator = () => {
-      if (typingUsers.size === 0) return null;
-      const typingUsersArray = Array.from(typingUsers);
-      console.log(typingUsers);
-      
-      return typingUsersArray?.map((username) => (
-        <Box
-          key={username}
-          alignSelf={
-            username === currentUser?.name ? "flex-start" : "flex-end"
-          }
-          maxW="70%"
-        >
-          <Flex
-            align="center"
-            bg={username === currentUser?.name ? "blue.50" : "gray.50"}
-            p={2}
-            borderRadius="lg"
-            gap={2}
-          >
-            {/* current user (You) -left side */}
-            {username === currentUser?.name ? (
-              <>
-                <Avatar size="xs" name={username} />
-                <Flex align="center" gap={1}>
-                  <Text fontSize="sm" color="gray.500" fontStyle="italic">
-                    You are typing
-                  </Text>
-                  <Flex gap={1}>
-                    {[1, 2, 3].map((dot) => (
-                      <Box
-                        key={dot}
-                        w="3px"
-                        h="3px"
-                        borderRadius="full"
-                        bg="gray.500"
-                      />
-                    ))}
-                  </Flex>
-                </Flex>
-              </>
-            ) : (
-              <>
-                <Flex align="center" gap={1}>
-                  <Text fontSize="sm" color="gray.500" fontStyle="italic">
-                    {username} is typing
-                  </Text>
-                  <Flex gap={1}>
-                    {[1, 2, 3].map((dot) => (
-                      <Box
-                        key={dot}
-                        w="3px"
-                        h="3px"
-                        borderRadius="full"
-                        bg="gray.500"
-                      />
-                    ))}
-                  </Flex>
-                </Flex>
-                <Avatar size="xs" name={username} />
-              </>
-            )}
-          </Flex>
-        </Box>
-      ));
-    };
-    // Sample data for demonstration
-    const sampleMessages = [
-      {
-        id: 1,
-        content: "Hey team! Just pushed the new updates to staging.",
-        sender: { username: "Sarah Chen" },
-        createdAt: "10:30 AM",
-        isCurrentUser: false,
-      },
-      {
-        id: 2,
-        content: "Great work! The new features look amazing 🚀",
-        sender: { username: "Alex Thompson" },
-        createdAt: "10:31 AM",
-        isCurrentUser: false,
-      },
-      {
-        id: 3,
-        content: "Thanks! Let's review it in our next standup.",
-        sender: { username: "You" },
-        createdAt: "10:32 AM",
-        isCurrentUser: true,
-      },
-    ];
-  
-    return (
-      <Flex
-        h="100%"
-        position="relative"
-        direction={{ base: "column", lg: "row" }}
-      >
-        <Box
-          flex="1"
-          display="flex"
-          flexDirection="column"
-          bg="gray.50"
-          maxW={{ base: "100%", lg: `calc(100% - 260px)` }}
-        >
-          {/* Chat Header */}
-          {selectedGroup ? (
-            <>
-              <Flex
-                px={6}
-                py={4}
-                bg="white"
-                borderBottom="1px solid"
-                borderColor="gray.200"
-                align="center"
-                boxShadow="sm"
-              >
-                <Button
-                  display={{ base: "inline-flex", md: "none" }}
-                  variant="ghost"
-                  mr={2}
-                  onClick={() => setSelectedGroup(null)}
-                >
-                  ←
-                </Button>
-                <Icon
-                  as={FiMessageCircle}
-                  fontSize="24px"
-                  color="blue.500"
-                  mr={3}
-                />
-                <Box flex="1">
-                  <Text fontSize="lg" fontWeight="bold" color="gray.800">
-                    {selectedGroup.name}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    {selectedGroup.description}
-                  </Text>
-                </Box>
-                <Icon
-                  as={FiInfo}
-                  fontSize="20px"
-                  color="gray.400"
-                  cursor="pointer"
-                  _hover={{ color: "blue.500" }}
-                />
-              </Flex>
-  
-              {/* Messages Area */}
-              <VStack
-                flex="1"
-                overflowY="auto"
-                spacing={4}
-                align="stretch"
-                px={6}
-                py={4}
-                w={{ base: "100%", md: "450px", lg: "600px" }}  // ✅ Does not grow in md screens
-                maxH="500px"  // ✅ Restricts max height
-                position="relative"
-                sx={{
-                  "&::-webkit-scrollbar": {
-                    width: "8px",
-                  },
-                  "&::-webkit-scrollbar-track": {
-                    width: "10px",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    background: "gray.200",
-                    borderRadius: "24px",
-                  },
-                }}
-              >
-                {messages.map((message) => (
-                  <Box
-                    key={message._id}
-                    alignSelf={
-                      message.sender?._id === currentUser?._id
-                        ? "flex-start"
-                        : "flex-end"
-                    }
-                    maxW="70%"
-                  >
-                    <Flex direction="column" gap={1}>
-                      <Flex
-                        align="center"
-                        mb={1}
-                        justifyContent={
-                          message.sender?._id === currentUser?._id
-                            ? "flex-start"
-                            : "flex-end"
-                        }
-                        gap={2}
-                      >
-                        {message.sender?._id === currentUser?._id ? (
-                          <>
-                            <Avatar size="xs" name={message.sender.username} />
-                            <Text fontSize="xs" color="gray.500">
-                              You • {formatTime(message.createdAt)}
-                            </Text>
-                          </>
-                          
-                        ) : (
-                          <>
-                            <Text fontSize="xs" color="gray.500">
-                              {message.sender?.name} •{" "}
-                              {formatTime(message.createdAt)}
-                            </Text>
-                            <Avatar size="xs" name={message.sender?.name} />
-                          </>
-                        )}
-                      </Flex>
-  
-                      <Box
-                        bg={
-                          message?.sender?._id === currentUser?._id
-                            ? "blue.500"
-                            : "white"
-                        }
-                        color={
-                          message?.sender?._id === currentUser?._id
-                            ? "white"
-                            : "gray.800"
-                        }
-                        p={3}
-                        borderRadius="lg"
-                        boxShadow="sm"
-                      >
-                        <Text>{message.content}</Text>
-                      </Box>
-                    </Flex>
-                  </Box>
-                ))}
-                {renderTypingIndicator()}
-                <div ref={messagesEndRef} />
-              </VStack>
-  
-              {/* Message Input */}
-              <Box
-                p={4}
-                bg="white"
-                borderTop="1px solid"
-                borderColor="gray.200"
-                position="relative"
-                zIndex="1"
-              >
-                <InputGroup size="lg">
-                  <Input
-                    value={newMessage}
-                    onChange={handleTyping}
-                    placeholder="Type your message..."
-                    pr="4.5rem"
-                    bg="gray.50"
-                    border="none"
-                    _focus={{
-                      boxShadow: "none",
-                      bg: "gray.100",
-                    }}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        sendMessage();
-                      }
-                    }}
-                  />
-                  <InputRightElement width="4.5rem">
-                    <Button
-                      h="1.75rem"
-                      size="sm"
-                      colorScheme="blue"
-                      borderRadius="full"
-                      _hover={{
-                        transform: "translateY(-1px)",
-                      }}
-                      transition="all 0.2s"
-                      onClick={sendMessage}
-                    >
-                      <Icon as={FiSend} />
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-              </Box>
-            </>
-          ) : (
-            <>
-              <Flex
-                h="100%"
-                direction="column"
-                align="center"
-                justify="center"
-                p={8}
-                textAlign="center"
-              >
-                <Icon
-                  as={FiMessageCircle}
-                  fontSize="64px"
-                  color="gray.300"
-                  mb={4}
-                />
-                <Text fontSize="xl" fontWeight="medium" color="gray.500" mb={2}>
-                  Welcome to the Chat
-                </Text>
-                <Text color="gray.500" mb={2}>
-                  Select a group from the sidebar to start chatting
-                </Text>
-              </Flex>
-            </>
-          )}
-        </Box>
-  
-        {/* UsersList with responsive width */}
-        <Box
-          width={{ base: "100%", lg: "260px" }}
-          position={{ base: "static", lg: "sticky" }}
-          right={0}
-          top={0}
-          height={{ base: "auto", lg: "100%" }}
-          flexShrink={0}
-          display={{ base: "none", lg: "block" }}
-        >
-          {selectedGroup && <UsersList users={connectedUsers} />}
-        </Box>
-      </Flex>
-    );
+  const currentUser = (() => {
+    try { return JSON.parse(localStorage.getItem("userinfo")) || {}; }
+    catch { return {}; }
+  })();
+
+  const fetchMessages = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_SERVER}/api/messages/${selectedGroup?._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // API returns newest first, reverse to show oldest first
+      setMessages(Array.isArray(data) ? data.reverse() : []);
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
+    }
   };
-  
-  export default ChatArea;
 
+  useEffect(() => {
+    if (!selectedGroup || !socket) return;
+    setMessages([]); // FIXED: don't set sampleMessages here
+    fetchMessages();
+    socket.emit("join room", selectedGroup._id);
+
+    socket.on("message received", (msg) => {
+      setMessages(prev => prev.some(m => m._id === msg._id) ? prev : [...prev, msg]);
+    });
+    socket.on("users in room", setConnectedUsers);
+    socket.on("user left", (userId) => {
+      setConnectedUsers(prev => prev.filter(u => u?.socketId !== userId));
+    });
+    socket.on("notification", (n) => {
+      if (n.type === "USER_JOINED") {
+        // show subtle toast
+        const event = new CustomEvent("collab-notification", { detail: n });
+        window.dispatchEvent(event);
+      }
+    });
+    socket.on("user typing", ({ username }) => {
+      setTypingUsers(prev => new Set(prev).add(username));
+    });
+    socket.on("user stop typing", ({ username }) => {
+      setTypingUsers(prev => { const s = new Set(prev); s.delete(username); return s; });
+    });
+
+    return () => {
+      socket.emit("leave room", selectedGroup._id);
+      socket.off("message received");
+      socket.off("users in room");
+      socket.off("user left");
+      socket.off("notification");
+      socket.off("user typing");
+      socket.off("user stop typing");
+    };
+  }, [selectedGroup, socket]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typingUsers]);
+
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
+    const token = localStorage.getItem("token");
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_SERVER}/api/messages`,
+        { content: newMessage, groupId: selectedGroup?._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      socket.emit("new message", { ...data, groupId: selectedGroup?._id });
+      setMessages(prev => [...prev, data]);
+      setNewMessage("");
+    } catch (err) {
+      console.error("Send error:", err);
+    }
+  };
+
+  const handleTyping = (e) => {
+    setNewMessage(e.target.value);
+    if (!isTyping && selectedGroup) {
+      setIsTyping(true);
+      socket.emit("typing", { groupId: selectedGroup._id, username: currentUser.name });
+    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      if (selectedGroup) socket.emit("stop typing", { groupId: selectedGroup._id });
+      setIsTyping(false);
+    }, 2000);
+  };
+
+  const isOwn = (msg) => msg.sender?._id === currentUser?._id;
+
+  if (!selectedGroup) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center" style={{ background: "var(--bg-primary)" }}>
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600/20 to-indigo-600/20 flex items-center justify-center mb-4 border" style={{ borderColor: "var(--border)" }}>
+          <FiMessageCircle size={32} style={{ color: "#7c3aed" }} />
+        </div>
+        <h2 className="text-xl font-semibold mb-2" style={{ color: "var(--text-primary)" }}>Welcome to Chat</h2>
+        <p style={{ color: "var(--text-secondary)" }}>Select a group from the sidebar to start chatting</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 flex flex-col h-full" style={{ background: "var(--bg-primary)" }}>
+      {/* Chat Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
+        <div className="flex items-center gap-3">
+          <button
+            className="md:hidden p-1.5 rounded-lg mr-1"
+            style={{ color: "var(--text-secondary)", background: "rgba(255,255,255,0.05)" }}
+            onClick={() => setSelectedGroup && setSelectedGroup(null)}
+          >
+            ←
+          </button>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white">
+            {getInitials(selectedGroup.name)}
+          </div>
+          <div>
+            <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{selectedGroup.name}</h2>
+            <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+              {connectedUsers.length} online · {selectedGroup.description}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowUsers(!showUsers)}
+          className="p-2 rounded-lg transition-colors"
+          style={{ color: showUsers ? "#a78bfa" : "var(--text-secondary)", background: showUsers ? "rgba(124,58,237,0.15)" : "transparent" }}
+        >
+          <FiUsers size={18} />
+        </button>
+      </div>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Messages */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+            {messages.length === 0 && (
+              <div className="text-center py-8" style={{ color: "var(--text-muted)" }}>
+                <FiMessageCircle size={32} className="mx-auto mb-2 opacity-40" />
+                <p className="text-sm">No messages yet. Say hello! 👋</p>
+              </div>
+            )}
+
+            {messages.map((msg) => {
+              const own = isOwn(msg);
+              return (
+                <div key={msg._id || Math.random()} className={`flex items-end gap-2 animate-message-in ${own ? "justify-end" : "justify-start"}`}>
+                  {!own && (
+                    <div className="avatar avatar-sm flex-shrink-0 mb-1">
+                      {getInitials(msg.sender?.name || "?")}
+                    </div>
+                  )}
+                  <div className={`max-w-[70%] flex flex-col ${own ? "items-end" : "items-start"}`}>
+                    {!own && (
+                      <span className="text-xs mb-1 font-medium" style={{ color: "#a78bfa" }}>
+                        {msg.sender?.name}
+                      </span>
+                    )}
+                    <div
+                      className="px-4 py-2.5 rounded-2xl text-sm"
+                      style={{
+                        background: own ? "linear-gradient(135deg, #7c3aed, #4f46e5)" : "var(--bg-card)",
+                        color: own ? "white" : "var(--text-primary)",
+                        borderRadius: own ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                        border: own ? "none" : "1px solid var(--border)",
+                      }}
+                    >
+                      {msg.content}
+                    </div>
+                    <span className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                      {formatTime(msg.createdAt)}
+                    </span>
+                  </div>
+                  {own && (
+                    <div className="avatar avatar-sm flex-shrink-0 mb-1">
+                      {getInitials(currentUser.name || "Me")}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Typing Indicators */}
+            {Array.from(typingUsers).filter(u => u !== currentUser?.name).map(username => (
+              <div key={username} className="flex items-end gap-2 justify-start animate-fade-in">
+                <div className="avatar avatar-sm flex-shrink-0 mb-1">{getInitials(username)}</div>
+                <div className="px-4 py-2.5 rounded-2xl flex items-center gap-1" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+                  <span className="text-xs mr-1" style={{ color: "#a78bfa" }}>{username}</span>
+                  <span className="typing-dot" />
+                  <span className="typing-dot" />
+                  <span className="typing-dot" />
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="px-4 py-3 border-t flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={handleTyping}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                placeholder="Type a message..."
+                className="input-dark flex-1"
+              />
+              <button onClick={sendMessage} disabled={!newMessage.trim()} className="btn-primary px-3 py-2.5 flex-shrink-0">
+                <FiSend size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Users Panel */}
+        {showUsers && (
+          <div className="w-56 border-l flex-shrink-0 animate-slide-right" style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
+            <UsersList users={connectedUsers} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ChatArea;

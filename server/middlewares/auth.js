@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/user.model.js';
+
 dotenv.config();
 export const isAuthenticated = async (req, res, next) => {
     try {
@@ -12,12 +14,12 @@ export const isAuthenticated = async (req, res, next) => {
         return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
       const decodedData = jwt.verify(token, process.env.JWT_SECERET);
-    //   console.log(decodedData);
-      
-        req.user = decodedData.userId;
-        
-        // Continue to the next middleware or route handler
-        next();
+      const user = await User.findById(decodedData.userId);
+      if (!user) {
+          return res.status(401).json({ message: "User session expired" });
+      }
+      req.user = user;
+      next();
     } catch (error) {
         // Respond with an error if any issue occurs
         console.error("Error in authentication middleware:", error);
