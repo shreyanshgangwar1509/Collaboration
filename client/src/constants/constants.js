@@ -79,14 +79,6 @@ export const navigation = [
       backgroundUrl: "./src/assets/feature/card-1.svg",
       imageUrl: "./src/assets/feature/chat.jpg",
     },
-    {
-      id: "5",
-      title: "ChatBot",
-      text: "AI-Powered Conversations at Your Service! Enhance user experience with intelligent chatbots.",
-      backgroundUrl: "./src/assets/feature/card-3.svg",
-      imageUrl: "./src/assets/feature/image-2.png",
-      light: "true",
-    },
   ];
 
   export const socials = [

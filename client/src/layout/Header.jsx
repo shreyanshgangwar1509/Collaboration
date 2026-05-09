@@ -1,16 +1,15 @@
 import { Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
-  { id: "code",   title: "Code",       url: "/home/editor", icon: "🖊️" },
-  { id: "wb",     title: "Whiteboard", url: "/whiteboard",  icon: "🎨" },
-  { id: "docs",   title: "Docs",       url: "/docs",        icon: "📄" },
-  { id: "ppt",    title: "PPT",        url: "/ppt",         icon: "📊" },
-  { id: "photo",  title: "Photo",      url: "/photoshop",   icon: "🖼️" },
-  { id: "chat",   title: "Chat",       url: "/chat",        icon: "💬" },
-  { id: "ai",     title: "AI Chat",    url: "/chatbot",     icon: "🤖" },
+  { id: "code",   title: "Code",       url: "/home/editor", icon: "" },
+  { id: "wb",     title: "Whiteboard", url: "/whiteboard",  icon: "" },
+  { id: "docs",   title: "Docs",       url: "/docs",        icon: "" },
+  { id: "ppt",    title: "PPT",        url: "/ppt",         icon: "" },
+  { id: "photo",  title: "Photo",      url: "/photoshop",   icon: "" },
+  { id: "chat",   title: "Chat",       url: "/chat",        icon: "" },
 ];
 
 const getInitials = (name = "") =>
@@ -57,10 +56,7 @@ const Header = () => {
       <div className="flex justify-between items-center px-4 lg:px-8 h-16">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 no-underline">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white">
-            ⚡
-          </div>
-          <span className="font-bold text-lg gradient-text hidden sm:block">CollabSpace</span>
+          <span className="font-bold text-lg gradient-text">CollabSpace</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -110,7 +106,7 @@ const Header = () => {
               <button onClick={() => navigate("/login")} className="btn-secondary text-sm px-4 py-2">
                 Login
               </button>
-              <button onClick={() => navigate("/register")} className="btn-primary text-sm px-4 py-2">
+              <button onClick={() => navigate("/login")} className="btn-primary text-sm px-4 py-2">
                 Get Started
               </button>
             </div>
@@ -155,7 +151,7 @@ const Header = () => {
               </button>
             ) : (
               <div className="flex flex-col gap-2">
-                <button onClick={() => { navigate("/register"); setDrawerOpen(false); }} className="btn-primary w-full py-2 text-sm">
+                <button onClick={() => { navigate("/login"); setDrawerOpen(false); }} className="btn-primary w-full py-2 text-sm">
                   Get Started
                 </button>
                 <button onClick={() => { navigate("/login"); setDrawerOpen(false); }} className="btn-secondary w-full py-2 text-sm">

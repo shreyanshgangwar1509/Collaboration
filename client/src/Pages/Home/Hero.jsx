@@ -11,57 +11,89 @@ const Hero = () => {
   const navigate = useNavigate();
   return (
     <Section
-      className="pt-[12rem] -mt-[5.25rem]"
+      className="pt-[10rem] pb-[4rem] lg:pt-[12rem] lg:pb-[8rem] overflow-hidden"
       crosses
-      crossesOffset="lg:translate-y-[5.25rem]"
       customPaddings
       id="hero"
     >
-      <div className="container relative" ref={parallaxRef}>
-        <div className="relative z-1 max-w-[62rem] mx-auto text-center mb-[3.875rem] md:mb-20 lg:mb-[6.25rem]">
-          <h1 className="h1 mb-6">
-            Lets Collaborate with People in
-            <span className="inline-block relative">
-              Real Time{" "}
-              <img
-                src={curve}
-                className="absolute top-full left-0 w-full xl:-mt-2"
-                width={624}
-                height={28}
-                alt="Curve"
-              />
+      <div className="container relative z-10" ref={parallaxRef}>
+        <div className="relative z-1 max-w-[62rem] mx-auto text-center mb-[4rem] md:mb-20 lg:mb-[6rem]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-xs font-bold uppercase tracking-widest mb-6 animate-fade-in">
+            <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+            Seamless Collaboration
+          </div>
+          
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 animate-slide-up">
+            Collaborate Without 
+            <span className="block mt-2">
+              <span className="gradient-text relative">
+                Boundaries{" "}
+                <img
+                  src={curve}
+                  className="absolute top-full left-0 w-full opacity-60"
+                  width={624}
+                  height={28}
+                  alt="Curve"
+                />
+              </span>
             </span>
           </h1>
-          <p className="body-1  max-w-3xl mx-auto mb-6 text-n-2 lg:mb-8">
-            Unleash the power of collaborating with people in real time with AI.
-            Upgrade your productivity with collaboration.
+
+          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            The ultimate all-in-one workspace for teams. Write code, draw ideas, 
+            build presentations, and chat in real-time — all in one powerful platform.
           </p>
-          <button onClick={() => navigate("/get-started")} className="bg-white text-black px-6 py-3 rounded-lg hover:text-purple-700">
-            Get Started
-          </button>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <button 
+              onClick={() => navigate("/login")} 
+              className="btn-primary text-base px-10 py-4 rounded-xl hover:scale-105 transition-all shadow-lg shadow-violet-500/20"
+            >
+              Get Started for Free
+            </button>
+            <button 
+              onClick={() => {
+                const features = document.getElementById('features');
+                features?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="btn-secondary text-base px-10 py-4 rounded-xl hover:bg-white/5 transition-all"
+            >
+              Explore Features
+            </button>
+          </div>
         </div>
-        <div className="relative max-w-[23rem] mx-auto md:max-w-5xl xl:mb-24">
-          <div className="relative z-1 p-0.5 rounded-2xl bg-conic-gradient">
-            <div className="relative bg-n-8 rounded-[1rem]">
-              <div className="h-[1.4rem] bg-n-10 rounded-t-[0.9rem]" />
-              <div className="aspect-[33/40] rounded-b-[0.9rem] overflow-hidden md:aspect-[688/490] lg:aspect-[1024/490]">
+
+        {/* Visual Asset Section */}
+        <div className="relative max-w-[90%] mx-auto md:max-w-5xl group">
+          <div className="relative z-1 p-1 rounded-2xl bg-gradient-to-br from-violet-600/50 via-indigo-600/50 to-cyan-600/50 backdrop-blur-sm shadow-2xl">
+            <div className="relative bg-[#0b0b14] rounded-xl overflow-hidden border border-white/5">
+              <div className="h-10 bg-white/5 flex items-center px-4 gap-2 border-bottom border-white/5">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+                </div>
+                <div className="mx-auto text-[10px] text-white/20 font-mono tracking-widest uppercase">CollabSpace Workspace</div>
+              </div>
+              <div className="aspect-[16/10] md:aspect-[1024/540] overflow-hidden">
                 <img
                   src={heroBanner}
-                  className="w-full h-full object-cover"
-                  alt="banner"
+                  className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-1000"
+                  alt="CollabSpace Interface"
                 />
               </div>
             </div>
             <Gradient />
           </div>
 
-          <div className="absolute -top-[54%] left-1/2 w-[234%] -translate-x-1/2 md:-top-[46%] md:w-[138%] lg:-top-[104%]">
+          {/* Glowing background orbs */}
+          <div className="absolute -top-[50%] left-1/2 w-[180%] -translate-x-1/2 -z-10 opacity-40 pointer-events-none">
             <img
               src={heroBackground}
-              className="w-full"
+              className="w-full mix-blend-screen"
               width={1440}
               height={1800}
-              alt="hero"
+              alt=""
             />
           </div>
           <BackgroundCircles />

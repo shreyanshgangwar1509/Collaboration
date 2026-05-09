@@ -42,13 +42,13 @@ const socketIo = (io) => {
       // ─────────────────────────────────────────
       // CHAT ROOM EVENTS
       // ─────────────────────────────────────────
-      socket.on("join room", (groupId) => {
+      socket.on(ACTIONS.JOIN_ROOM || "join room", (groupId) => {
         socket.join(groupId);
         userSocketMap[socket.id] = { user, name: user.name, room: groupId };
 
         const usersInRoom = getAllConnectedClients(groupId);
-        io.in(groupId).emit("users in room", usersInRoom);
-        io.in(groupId).emit("notification", {
+        io.in(groupId).emit(ACTIONS.USERS_IN_ROOM, usersInRoom);
+        io.in(groupId).emit(ACTIONS.NOTIFICATION, {
           type: "USER_JOINED",
           message: `${user.name} has joined`,
           user,
@@ -56,26 +56,26 @@ const socketIo = (io) => {
         logActivity(user._id, 'CHAT', 'Joined Group Chat', groupId);
       });
 
-      socket.on("leave room", (groupId) => {
+      socket.on(ACTIONS.LEAVE_ROOM || "leave room", (groupId) => {
         socket.leave(groupId);
         if (userSocketMap[socket.id]) {
           delete userSocketMap[socket.id];
-          io.in(groupId).emit("user left", user?._id);
+          io.in(groupId).emit(ACTIONS.USER_LEFT, user?._id);
         }
       });
 
-      socket.on("new message", (message) => {
-        io.in(message.groupId).emit("message received", message);
+      socket.on(ACTIONS.NEW_MESSAGE || "new message", (message) => {
+        io.in(message.groupId).emit(ACTIONS.MESSAGE_RECEIVED, message);
       });
 
-      socket.on("typing", ({ groupId, username }) => {
-        socket.to(groupId).emit("user typing", { username });
+      socket.on(ACTIONS.TYPING || "typing", ({ groupId, username }) => {
+        socket.to(groupId).emit(ACTIONS.USER_TYPING, { username });
       });
 
-      socket.on("stop typing", ({ groupId }) => {
+      socket.on(ACTIONS.STOP_TYPING || "stop typing", ({ groupId }) => {
         const userInfo = userSocketMap[socket.id];
         if (userInfo) {
-          socket.to(groupId).emit("user stop typing", { username: userInfo.name });
+          socket.to(groupId).emit(ACTIONS.USER_STOP_TYPING, { username: userInfo.name });
         }
       });
 
@@ -95,12 +95,12 @@ const socketIo = (io) => {
         });
       });
 
-      socket.on("join editor", (roomid) => {
+      socket.on(ACTIONS.JOIN_EDITOR, (roomid) => {
         socket.join(roomid);
         userSocketMap[socket.id] = { user, name: user.name, room: roomid };
         const usersInRoom = getAllConnectedClients(roomid);
-        io.in(roomid).emit("users in editor room", usersInRoom);
-        io.in(roomid).emit("notification", {
+        io.in(roomid).emit(ACTIONS.USERS_IN_EDITOR || "users in editor room", usersInRoom);
+        io.in(roomid).emit(ACTIONS.NOTIFICATION, {
           type: "USER_JOINED",
           message: `${user.name} has joined the editor`,
           user,
@@ -108,28 +108,27 @@ const socketIo = (io) => {
         logActivity(user._id, 'CODE', 'Joined Collaborative Editor', roomid);
       });
 
-      socket.on("editor_change", ({ roomid, code }) => {
-        // FIX: broadcast only to that room, not all clients
-        socket.to(roomid).emit("editor_change", { roomid, newCode: code });
+      socket.on(ACTIONS.EDITOR_CHANGE, ({ roomid, code }) => {
+        socket.to(roomid).emit(ACTIONS.EDITOR_CHANGE, { roomid, newCode: code });
       });
 
-      socket.on("leave_editor", (roomid) => {
+      socket.on(ACTIONS.LEAVE_EDITOR, (roomid) => {
         socket.leave(roomid);
         if (userSocketMap[socket.id]) {
           delete userSocketMap[socket.id];
-          io.in(roomid).emit("user left", user?._id);
+          io.in(roomid).emit(ACTIONS.USER_LEFT, user?._id);
         }
       });
 
       // ─────────────────────────────────────────
       // WHITEBOARD EVENTS
       // ─────────────────────────────────────────
-      socket.on("join_whiteboard_room", (roomid) => {
+      socket.on(ACTIONS.JOIN_WHITEBOARD, (roomid) => {
         socket.join(roomid);
         userSocketMap[socket.id] = { user, name: user.name, room: roomid };
         const usersInRoom = getAllConnectedClients(roomid);
-        io.in(roomid).emit("users in whiteboard room", usersInRoom);
-        io.in(roomid).emit("notification", {
+        io.in(roomid).emit(ACTIONS.USERS_IN_WHITEBOARD || "users in whiteboard room", usersInRoom);
+        io.in(roomid).emit(ACTIONS.NOTIFICATION, {
           type: "USER_JOINED",
           message: `${user.name} has joined the whiteboard`,
           user,
@@ -137,33 +136,31 @@ const socketIo = (io) => {
         logActivity(user._id, 'WHITEBOARD', 'Joined Whiteboard Session', roomid);
       });
 
-      // FIX: was "leave_whitwboard_room" (typo)
-      socket.on("leave_whiteboard_room", (roomid) => {
+      socket.on(ACTIONS.LEAVE_WHITEBOARD, (roomid) => {
         socket.leave(roomid);
         if (userSocketMap[socket.id]) {
           delete userSocketMap[socket.id];
-          io.in(roomid).emit("user left", user?._id);
+          io.in(roomid).emit(ACTIONS.USER_LEFT, user?._id);
         }
       });
 
-      socket.on("canvas-data", ({ roomid, data }) => {
-        // FIX: was socket.broadcast.emit (sends to ALL) — now room-scoped
-        socket.to(roomid).emit("canvas-data", data);
+      socket.on(ACTIONS.CANVAS_DATA, ({ roomid, data }) => {
+        socket.to(roomid).emit(ACTIONS.CANVAS_DATA, data);
       });
 
-      socket.on("whiteboard-clear", (roomid) => {
-        socket.to(roomid).emit("whiteboard-clear");
+      socket.on(ACTIONS.WHITEBOARD_CLEAR, (roomid) => {
+        socket.to(roomid).emit(ACTIONS.WHITEBOARD_CLEAR);
       });
 
       // ─────────────────────────────────────────
       // DOC EDITOR EVENTS
       // ─────────────────────────────────────────
-      socket.on("join_doc_room", (roomid) => {
+      socket.on(ACTIONS.JOIN_DOC, (roomid) => {
         socket.join(roomid);
         userSocketMap[socket.id] = { user, name: user.name, room: roomid };
         const usersInRoom = getAllConnectedClients(roomid);
-        io.in(roomid).emit("users in doc room", usersInRoom);
-        io.in(roomid).emit("notification", {
+        io.in(roomid).emit(ACTIONS.USERS_IN_DOC || "users in doc room", usersInRoom);
+        io.in(roomid).emit(ACTIONS.NOTIFICATION, {
           type: "USER_JOINED",
           message: `${user.name} has joined the document`,
           user,
@@ -171,31 +168,31 @@ const socketIo = (io) => {
         logActivity(user._id, 'DOCS', 'Joined Document Studio', roomid);
       });
 
-      socket.on("doc_change", ({ roomid, delta, content }) => {
-        socket.to(roomid).emit("doc_change", { delta, content });
+      socket.on(ACTIONS.DOC_CHANGE, ({ roomid, delta, content }) => {
+        socket.to(roomid).emit(ACTIONS.DOC_CHANGE, { delta, content });
       });
 
-      socket.on("doc_cursor", ({ roomid, range, name }) => {
-        socket.to(roomid).emit("doc_cursor", { range, name, userId: user._id });
+      socket.on(ACTIONS.DOC_CURSOR, ({ roomid, range, name }) => {
+        socket.to(roomid).emit(ACTIONS.DOC_CURSOR, { range, name, userId: user._id });
       });
 
-      socket.on("leave_doc_room", (roomid) => {
+      socket.on(ACTIONS.LEAVE_DOC, (roomid) => {
         socket.leave(roomid);
         if (userSocketMap[socket.id]) {
           delete userSocketMap[socket.id];
-          io.in(roomid).emit("user left", user?._id);
+          io.in(roomid).emit(ACTIONS.USER_LEFT, user?._id);
         }
       });
 
       // ─────────────────────────────────────────
       // PPT EDITOR EVENTS
       // ─────────────────────────────────────────
-      socket.on("join_ppt_room", (roomid) => {
+      socket.on(ACTIONS.JOIN_PPT, (roomid) => {
         socket.join(roomid);
         userSocketMap[socket.id] = { user, name: user.name, room: roomid };
         const usersInRoom = getAllConnectedClients(roomid);
-        io.in(roomid).emit("users in ppt room", usersInRoom);
-        io.in(roomid).emit("notification", {
+        io.in(roomid).emit(ACTIONS.USERS_IN_PPT || "users in ppt room", usersInRoom);
+        io.in(roomid).emit(ACTIONS.NOTIFICATION, {
           type: "USER_JOINED",
           message: `${user.name} has joined the presentation`,
           user,
@@ -203,43 +200,43 @@ const socketIo = (io) => {
         logActivity(user._id, 'PPT', 'Joined PPT Presentation', roomid);
       });
 
-      socket.on("ppt_slide_add", ({ roomid, slide }) => {
-        socket.to(roomid).emit("ppt_slide_add", { slide });
+      socket.on(ACTIONS.PPT_SLIDE_ADD, ({ roomid, slide }) => {
+        socket.to(roomid).emit(ACTIONS.PPT_SLIDE_ADD, { slide });
       });
 
-      socket.on("ppt_slide_update", ({ roomid, slide }) => {
-        socket.to(roomid).emit("ppt_slide_update", { slide });
+      socket.on(ACTIONS.PPT_SLIDE_UPDATE, ({ roomid, slide }) => {
+        socket.to(roomid).emit(ACTIONS.PPT_SLIDE_UPDATE, { slide });
       });
 
-      socket.on("ppt_slide_delete", ({ roomid, slideId }) => {
-        socket.to(roomid).emit("ppt_slide_delete", { slideId });
+      socket.on(ACTIONS.PPT_SLIDE_DELETE, ({ roomid, slideId }) => {
+        socket.to(roomid).emit(ACTIONS.PPT_SLIDE_DELETE, { slideId });
       });
 
-      socket.on("ppt_slide_reorder", ({ roomid, slides }) => {
-        socket.to(roomid).emit("ppt_slide_reorder", { slides });
+      socket.on(ACTIONS.PPT_SLIDE_REORDER, ({ roomid, slides }) => {
+        socket.to(roomid).emit(ACTIONS.PPT_SLIDE_REORDER, { slides });
       });
 
-      socket.on("ppt_current_slide", ({ roomid, slideIndex }) => {
-        socket.to(roomid).emit("ppt_current_slide", { slideIndex });
+      socket.on(ACTIONS.PPT_CURRENT_SLIDE, ({ roomid, slideIndex }) => {
+        socket.to(roomid).emit(ACTIONS.PPT_CURRENT_SLIDE, { slideIndex });
       });
 
-      socket.on("leave_ppt_room", (roomid) => {
+      socket.on(ACTIONS.LEAVE_PPT, (roomid) => {
         socket.leave(roomid);
         if (userSocketMap[socket.id]) {
           delete userSocketMap[socket.id];
-          io.in(roomid).emit("user left", user?._id);
+          io.in(roomid).emit(ACTIONS.USER_LEFT, user?._id);
         }
       });
 
       // ─────────────────────────────────────────
       // PHOTO EDITOR EVENTS
       // ─────────────────────────────────────────
-      socket.on("join_photo_room", (roomid) => {
+      socket.on(ACTIONS.JOIN_PHOTO, (roomid) => {
         socket.join(roomid);
         userSocketMap[socket.id] = { user, name: user.name, room: roomid };
         const usersInRoom = getAllConnectedClients(roomid);
-        io.in(roomid).emit("users in photo room", usersInRoom);
-        io.in(roomid).emit("notification", {
+        io.in(roomid).emit(ACTIONS.USERS_IN_PHOTO || "users in photo room", usersInRoom);
+        io.in(roomid).emit(ACTIONS.NOTIFICATION, {
           type: "USER_JOINED",
           message: `${user.name} has joined the photo editor`,
           user,
@@ -247,27 +244,27 @@ const socketIo = (io) => {
         logActivity(user._id, 'PHOTO', 'Joined Photo Studio', roomid);
       });
 
-      socket.on("photo_object_add", ({ roomid, obj }) => {
-        socket.to(roomid).emit("photo_object_add", { obj });
+      socket.on(ACTIONS.PHOTO_OBJECT_ADD, ({ roomid, obj }) => {
+        socket.to(roomid).emit(ACTIONS.PHOTO_OBJECT_ADD, { obj });
       });
 
-      socket.on("photo_object_modify", ({ roomid, obj }) => {
-        socket.to(roomid).emit("photo_object_modify", { obj });
+      socket.on(ACTIONS.PHOTO_OBJECT_MODIFY, ({ roomid, obj }) => {
+        socket.to(roomid).emit(ACTIONS.PHOTO_OBJECT_MODIFY, { obj });
       });
 
-      socket.on("photo_object_delete", ({ roomid, objId }) => {
-        socket.to(roomid).emit("photo_object_delete", { objId });
+      socket.on(ACTIONS.PHOTO_OBJECT_DELETE, ({ roomid, objId }) => {
+        socket.to(roomid).emit(ACTIONS.PHOTO_OBJECT_DELETE, { objId });
       });
 
-      socket.on("photo_canvas_state", ({ roomid, state }) => {
-        socket.to(roomid).emit("photo_canvas_state", { state });
+      socket.on(ACTIONS.PHOTO_CANVAS_STATE, ({ roomid, state }) => {
+        socket.to(roomid).emit(ACTIONS.PHOTO_CANVAS_STATE, { state });
       });
 
-      socket.on("leave_photo_room", (roomid) => {
+      socket.on(ACTIONS.LEAVE_PHOTO, (roomid) => {
         socket.leave(roomid);
         if (userSocketMap[socket.id]) {
           delete userSocketMap[socket.id];
-          io.in(roomid).emit("user left", user?._id);
+          io.in(roomid).emit(ACTIONS.USER_LEFT, user?._id);
         }
       });
 
@@ -277,7 +274,7 @@ const socketIo = (io) => {
       socket.on("disconnect", () => {
         const userData = userSocketMap[socket.id];
         if (userData) {
-          io.in(userData.room).emit("user left", userData.user?._id);
+          io.in(userData.room).emit(ACTIONS.USER_LEFT, userData.user?._id);
           delete userSocketMap[socket.id];
         }
         console.log(`User disconnected: ${userData?.name || "Unknown"}`);
