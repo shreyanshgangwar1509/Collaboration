@@ -1,153 +1,80 @@
-# Real-Time Collaboration Platform
+# Collaboration Platform (MERN)
 
-A comprehensive real-time collaboration platform built with the **MERN stack**, enabling teams to work together seamlessly across multiple tools and interfaces.
+A real-time workspace for teams to sync on code, documents, and design. This project integrates multiple collaborative tools into a single dashboard using Socket.io for live updates and a unified Glassmorphism UI.
 
----
+## Modules
 
-## ✨ Features
+###  CodeLab (Editor)
+* **Execution**: Integrated with the **Piston API** for free, multi-language code compilation (Python, Java, C++, JS, etc.).
+* **Sync**: Real-time cursor and text synchronization.
+* **Snippets**: Pre-configured boilerplates for quick starts.
 
-### ✅ Current Features
+###  DocStudio
+* **Engine**: Built on **React Quill**.
+* **Features**: Rich text formatting, real-time collaboration, and word count tracking.
+* **Export**: Direct export to `.txt` files.
 
-* 🔐 **Authentication System** – Secure user registration and login
-* 💬 **Real-Time Chat** – Instant messaging with live updates
-* 👨‍💻 **Collaborative Code Editor** – Multi-user code editing with syntax highlighting
-* 🎨 **Collaborative Photo Editor** – Real-time image editing and manipulation
-* 📝 **Collaborative Text Editor** – Rich text editing with multiple users
-* 🖼️ **Collaborative Whiteboard** – Interactive drawing and brainstorming canvas
-* 🤖 **Integrated Chatbot** – AI-powered assistance for users
+###  Photo & Design Studio
+* **Engine**: Powered by **Fabric.js v6**.
+* **Editing**: Drag-and-drop object manipulation, layering (Front/Back), and opacity controls.
+* **Filters**: Real-time image filters (Grayscale, Sepia, Invert, Blur).
+* **Collage**: Support for multiple image uploads on a single canvas.
 
-### 🔜 Upcoming Features
+###  Whiteboard
+* **Tools**: Freehand drawing, shape tools (Rect, Circle, Line), and persistent clearing.
+* **State**: Real-time canvas broadcasting.
 
-* 📝 **AI-Powered Grammar Checker** – Advanced text correction and suggestions
-* 🔑 **Google Authentication** – OAuth integration for seamless login
+###  User Profiles & Activity
+* **Activity Tracking**: Automatic logging of room joins and code executions.
+* **Saved Work**: Users can save code snippets or documents directly to their profile database.
+* **Dashboard**: Two-column layout with quick-launch tools and a filterable history sidebar.
 
----
+## Tech Stack
 
-## 🛠️ Tech Stack
+* **Frontend**: React 18, Vite, Tailwind CSS, Lucide/React Icons.
+* **Backend**: Node.js, Express.
+* **Database**: MongoDB (Mongoose) for users, activity logs, and saved items.
+* **Real-time**: Socket.io (with JWT-based handshake authentication).
+* **Auth**: Custom JWT implementation with bcryptjs password hashing.
 
-### Frontend
+## Setup
 
-* **React.js** – UI library
-* **Tailwind CSS** – Utility-first CSS framework for styling
-* **Socket.io-client** – Real-time communication
+### Prerequisites
+* Node.js (>= 22.0.0)
+* MongoDB instance
 
-### Backend
+### Installation
 
-* **Node.js** – JavaScript runtime
-* **Express.js** – Web application framework
-* **Socket.io** – Real-time bidirectional communication
-* **JWT** – Secure authentication using JSON Web Tokens
-
-### Database
-
-* **MongoDB** – NoSQL database
-* **Mongoose** – MongoDB object modeling
-
----
-
-## 📋 Prerequisites
-
-Ensure you have the following installed:
-
-* [Node.js](https://nodejs.org/) (v14.0.0 or higher)
-* npm
-* [MongoDB](https://www.mongodb.com/) (local or MongoDB Atlas)
-* Git
-
----
-
-## ⚙️ Installation & Setup
-
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/shreyanshgangwar1509/Collaboration.git
-cd Collaboration
-```
-
-### 2️⃣ Backend Setup
-
-```bash
-# Navigate to backend directory
-cd server
-
-# Install dependencies
-npm install
-
-# Copy environment config
-cp .env.sample .env
-
-# Edit .env file with your configuration
-# (Add MongoDB URI, JWT secret, etc.)
-```
-
-### 3️⃣ Frontend Setup
-
-```bash
-# Navigate to frontend directory
-cd client
-
-# Install dependencies
-npm install
-```
-
----
-
-## 🚀 Running the Application
-
-### Start Backend Server
-
-```bash
-cd server
-node index.js
-```
-
-### Start Frontend Server
-
-```bash
-cd client
-npm run dev
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch:
-
+1. **Clone the repo**
    ```bash
-   git checkout -b feature/amazing-feature
+   git clone https://github.com/shreyanshgangwar1509/Collaboration.git
    ```
-3. Commit your changes:
 
+2. **Backend Config**
    ```bash
-   git commit -m "Add some amazing feature"
+   cd server
+   npm install
+   # Create a .env file with:
+   # PORT=3000
+   # JWT_SECERET=your_secret
+   # EMAIL_USER/EMAIL_PASS=gmail_creds
+   # MONGO_URL=your_mongo_uri
+   npm start
    ```
-4. Push to your branch:
 
+3. **Frontend Config**
    ```bash
-   git push origin feature/amazing-feature
+   cd client
+   npm install
+   # Create a .env file with:
+   # VITE_SERVER=http://localhost:3000
+   npm run dev
    ```
-5. Open a Pull Request
 
----
+## Team
+* Shreyansh Gangwar
+* Anushka Verma
+* Varsha Sakaray
 
-## 👥 Team
-
-* **Anushka Verma**
-* **Shreyansh Gangwar**
-* **Varsha Sakaray**
-
----
-
-### 🔗 Live Demo
-
-Check out the deployed project here:  
-👉 [https://collaboration-iota.vercel.app/](https://collaboration-iota.vercel.app/)
-
-
-
-
-
-
+## Live Demo
+[collaboration-iota.vercel.app](https://collaboration-iota.vercel.app/)
