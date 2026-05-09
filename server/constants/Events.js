@@ -8,6 +8,7 @@ export const ACTIONS = {
   USERS_IN_ROOM: "users in room",
   USER_LEFT: "user left",
   AUTH_ERROR: "auth_error",
+  GLOBAL_PRESENCE: "global_presence",
 
   // Chat
   SEND_MESSAGE: "send message",

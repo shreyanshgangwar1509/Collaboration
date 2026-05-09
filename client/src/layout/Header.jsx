@@ -2,6 +2,10 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
+import { ACTIONS } from "../constants/Events";
+
+const ENDPOINT = import.meta.env.VITE_SERVER;
 
 const navItems = [
   { id: "code",   title: "Code",       url: "/home/editor", icon: "" },
@@ -21,11 +25,30 @@ const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const info = localStorage.getItem("userinfo");
     if (info) setUser(JSON.parse(info));
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      setOnlineUsers([]);
+      return;
+    }
+
+    const socket = io(ENDPOINT, { auth: { token } });
+
+    socket.on(ACTIONS.GLOBAL_PRESENCE, (users) => {
+      setOnlineUsers(users);
+    });
+
+    return () => {
+      socket.off(ACTIONS.GLOBAL_PRESENCE);
+      socket.disconnect();
+    };
   }, [token]);
 
   useEffect(() => {
@@ -57,6 +80,12 @@ const Header = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 no-underline">
           <span className="font-bold text-lg gradient-text">CollabSpace</span>
+          {onlineUsers.length > 0 && (
+            <div className="flex items-center gap-1.5 ml-2 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-green-500 uppercase tracking-tight">{onlineUsers.length} Online</span>
+            </div>
+          )}
         </Link>
 
         {/* Desktop Nav */}

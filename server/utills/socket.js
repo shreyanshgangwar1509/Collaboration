@@ -9,12 +9,19 @@ import { logActivity } from './activity-logger.js';
 dotenv.config();
 
 const userSocketMap = {};
+const globalOnlineUsers = new Map(); // Store userId -> { name, avatar, socketId }
+
+const broadcastPresence = (io) => {
+  const users = Array.from(globalOnlineUsers.values());
+  io.emit(ACTIONS.GLOBAL_PRESENCE, users);
+};
 
 const getAllConnectedClients = (roomId) => {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
     (socketId) => ({
       socketId,
       name: userSocketMap[socketId]?.name || "Anonymous",
+      userId: userSocketMap[socketId]?.user?._id,
     })
   );
 };
@@ -38,6 +45,14 @@ const socketIo = (io) => {
       }
 
       console.log("User connected:", user.name);
+      
+      // Add to global presence
+      globalOnlineUsers.set(user._id.toString(), {
+        userId: user._id,
+        name: user.name,
+        socketId: socket.id,
+      });
+      broadcastPresence(io);
 
       // ─────────────────────────────────────────
       // CHAT ROOM EVENTS
@@ -277,6 +292,11 @@ const socketIo = (io) => {
           io.in(userData.room).emit(ACTIONS.USER_LEFT, userData.user?._id);
           delete userSocketMap[socket.id];
         }
+        
+        // Remove from global presence
+        globalOnlineUsers.delete(user._id.toString());
+        broadcastPresence(io);
+        
         console.log(`User disconnected: ${userData?.name || "Unknown"}`);
       });
 
