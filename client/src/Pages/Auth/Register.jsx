@@ -71,6 +71,8 @@ export default function RegisterPage() {
     } finally {
       setLoading(false);
     }
+  };
+
   const handleOAuthLogin = (provider) => {
     window.location.href = `${import.meta.env.VITE_SERVER}/api/auth/${provider}`;
   };
