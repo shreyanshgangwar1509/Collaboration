@@ -15,20 +15,16 @@ const SignUp = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash password before saving
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     const user = new User({
       name,
       email,
-      password: hashedPassword,
+      password, // Password will be hashed by model middleware
       isVerified: false,
     });
 
     await user.save();
     await sendverificationemail(req, email);
-    return res.status(200).json({ message: "User registered successfully. Please verify your email.", user: { _id: user._id, name: user.name, email: user.email } });
+    return res.status(201).json({ message: "User registered successfully. Please verify your email.", user: { _id: user._id, name: user.name, email: user.email } });
   } catch (error) {
     console.error("Error in SignUp:", error);
     return res.status(500).json({ message: 'Server error', error: error.message });
@@ -45,8 +41,8 @@ const Login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials: user not found' });
     }
 
-    // Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Use model method to compare password
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials: incorrect password' });
     }
@@ -64,7 +60,7 @@ const Login = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin || false,
+      role: user.role,
     };
 
     return res.status(200).json({
@@ -153,4 +149,28 @@ const getProfile = async (req, res) => {
   }
 };
 
-export { getProfile, Login, logoutUser, SignUp, tokencontroller, verifyemail };
+const oauthSuccess = (req, res) => {
+  try {
+    const user = req.user;
+    const accessToken = setToken(user);
+    const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_SECERET, { expiresIn: "7d" });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    // Return user info so client can store it
+    const userInfo = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Redirect with tokens in query params
+    res.redirect(`${frontendUrl}/login?token=${accessToken}&refreshToken=${refreshToken}&user=${encodeURIComponent(JSON.stringify(userInfo))}`);
+  } catch (error) {
+    console.error("Error in oauthSuccess:", error);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
+  }
+};
+
+export { getProfile, Login, logoutUser, SignUp, tokencontroller, verifyemail, oauthSuccess };

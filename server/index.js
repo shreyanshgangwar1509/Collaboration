@@ -13,6 +13,8 @@ import savedRoutes from './routes/saved.routes.js';
 import { connectdb } from './utills/connectdb.js';
 import coderoutes from './routes/code.routes.js';
 import socketIo from './utills/socket.js';
+import passport from './utills/passport.js';
+import session from 'express-session';
 
 
 dotenv.config();
@@ -34,6 +36,14 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.JWT_SECERET || 'collab-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Connect DB
 await connectdb();
