@@ -1,32 +1,31 @@
 import nodemailer from "nodemailer";
 
 export async function sendOtpEmail(recipientEmail, otp) {
-  if (!recipientEmail) {
+  const emailUser = process.env.EMAIL_USER?.trim();
+  const emailPass = process.env.EMAIL_PASS?.replace(/\s/g, "");
+
+  if (!recipientEmail?.trim()) {
     throw new Error("Recipient email is required");
   }
 
-  
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!emailUser || !emailPass) {
     console.error("Missing email credentials in environment variables");
     throw new Error("Email configuration error");
   }
 
-  
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+    service: "gmail",
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: emailUser,
+      pass: emailPass,
     },
   });
 
   const mailOptions = {
-    from: `"CollabSpace" <${process.env.EMAIL_USER}>`,
-    to: recipientEmail,
+    from: "CollabSpace" <${emailUser}>,
+    to: recipientEmail.trim(),
     subject: "Your OTP for Email Verification",
-    text: `Your OTP for verification is: ${otp}`,
+    text: Your OTP for verification is: ${otp},
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
         <h2 style="color: #7c3aed; text-align: center;">Email Verification</h2>
@@ -44,9 +43,9 @@ export async function sendOtpEmail(recipientEmail, otp) {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`OTP email sent: ${info.messageId}`);
+    console.log(OTP email sent: ${info.messageId});
   } catch (error) {
     console.error("Nodemailer Error Debug:", error);
-    throw new Error(`Failed to send OTP email: ${error.message}`);
+    throw new Error(Failed to send OTP email: ${error.message});
   }
 }
