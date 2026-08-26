@@ -22,10 +22,10 @@ export async function sendOtpEmail(recipientEmail, otp) {
   });
 
   const mailOptions = {
-    from: "CollabSpace" <${emailUser}>,
+    from: `"CollabSpace" <${emailUser}>`,
     to: recipientEmail.trim(),
     subject: "Your OTP for Email Verification",
-    text: Your OTP for verification is: ${otp},
+    text: `Your OTP for verification is: ${otp}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
         <h2 style="color: #7c3aed; text-align: center;">Email Verification</h2>
@@ -43,9 +43,9 @@ export async function sendOtpEmail(recipientEmail, otp) {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(OTP email sent: ${info.messageId});
+    console.log(`OTP email sent: ${info.messageId}`);
   } catch (error) {
     console.error("Nodemailer Error Debug:", error);
-    throw new Error(Failed to send OTP email: ${error.message});
+    throw new Error(`Failed to send OTP email: ${error.message}`);
   }
 }
