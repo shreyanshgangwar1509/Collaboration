@@ -1,7 +1,7 @@
 import express from 'express';
-import { getProfile, Login, logoutUser, SignUp, verifyemail, oauthSuccess } from '../controllers/user.js';
-import { isAuthenticated } from '../middlewares/auth.js';
 import passport from 'passport';
+import { getProfile, Login, logoutUser, oauthSuccess, SignUp, verifyemail } from '../controllers/user.js';
+import { isAuthenticated } from '../middlewares/auth.js';
 
 const  router = express.Router();
 
@@ -14,7 +14,10 @@ router.post('/verifyemail', verifyemail);
 // Google Auth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`,
+    session: false,
+  }),
   oauthSuccess
 );
 

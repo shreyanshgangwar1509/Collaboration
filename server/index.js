@@ -4,17 +4,16 @@ import express from 'express';
 import http from 'http';
 import { Server as socket } from 'socket.io';
 import errorHandler from "./middlewares/error.js";
+import activityRoutes from './routes/activity.routes.js';
 import authroutes from './routes/auth.routes.js';
 import chatroutes from './routes/chatbot.routes.js';
+import coderoutes from './routes/code.routes.js';
 import groupRouter from './routes/group.routes.js';
 import messageRouter from './routes/message.routes.js';
-import activityRoutes from './routes/activity.routes.js';
 import savedRoutes from './routes/saved.routes.js';
 import { connectdb } from './utills/connectdb.js';
-import coderoutes from './routes/code.routes.js';
-import socketIo from './utills/socket.js';
 import passport from './utills/passport.js';
-import session from 'express-session';
+import socketIo from './utills/socket.js';
 
 
 dotenv.config();
@@ -36,14 +35,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-  secret: process.env.JWT_SECERET || 'collab-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
 app.use(passport.initialize());
-app.use(passport.session());
 
 // Connect DB
 await connectdb();

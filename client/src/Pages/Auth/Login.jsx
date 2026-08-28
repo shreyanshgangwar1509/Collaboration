@@ -1,7 +1,7 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
 
 // --- Floating Orb background ---
 const FloatingOrbs = () => (
@@ -28,9 +28,9 @@ export default function LoginPage() {
     if (token) {
       localStorage.setItem("token", token);
       if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
-      if (userInfo) localStorage.setItem("userinfo", decodeURIComponent(userInfo));
+      if (userInfo) localStorage.setItem("userinfo", userInfo);
       
-      const user = JSON.parse(decodeURIComponent(userInfo || "{}"));
+      const user = JSON.parse(userInfo || "{}");
       toast.success(`Welcome, ${user.name || "User"}! 🎉`);
       navigate("/profile");
     }
