@@ -1,6 +1,6 @@
 import express from 'express';
-import { clearUserActivity, getUserActivity } from '../controllers/activity.js';
-import { isAuthenticated } from '../middlewares/auth.js';
+import { clearUserActivity, getUserActivity } from '../controllers/activity.controller.js';
+import { isAuthenticated } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 

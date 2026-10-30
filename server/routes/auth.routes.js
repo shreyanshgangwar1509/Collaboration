@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
-import { getProfile, Login, logoutUser, oauthSuccess, SignUp, verifyemail } from '../controllers/user.js';
-import { isAuthenticated } from '../middlewares/auth.js';
+import { getProfile, Login, logoutUser, oauthSuccess, SignUp, verifyemail } from '../controllers/auth.controller.js';
+import { isAuthenticated } from '../middlewares/auth.middleware.js';
 
 const  router = express.Router();
 

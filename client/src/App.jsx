@@ -2,13 +2,14 @@ import React, { Suspense, lazy } from "react";
 import { Toaster } from "react-hot-toast";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const Layout     = lazy(() => import("./layout/Layout"));
 const Login      = lazy(() => import("./Pages/Auth/Login"));
 const Profile    = lazy(() => import("./Pages/Auth/Profile"));
 const Register   = lazy(() => import("./Pages/Auth/Register"));
 const Chat       = lazy(() => import("./Pages/Chat/Chat"));
-const Chatbot    = lazy(() => import("./Pages/chatbot/Chatbot"));
+const Chatbot    = lazy(() => import("./Pages/Chatbot/Chatbot"));
 const CodingEditor = lazy(() => import("./Pages/Coding/CodingEditor"));
 const CodingHome = lazy(() => import("./Pages/Coding/CodingHome"));
 const DocEditor  = lazy(() => import("./Pages/Docs/DocEditor"));
@@ -49,30 +50,32 @@ const App = () => {
         }}
       />
       <Router>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route element={<Layout />}>
-              {/* Public routes */}
-              <Route path="/"         element={<Home />} />
-              <Route path="/login"    element={<Login />} />
-              <Route path="/register" element={<Register />} />
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route element={<Layout />}>
+                {/* Public routes */}
+                <Route path="/"         element={<Home />} />
+                <Route path="/login"    element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              {/* Protected routes — require login */}
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/chat"    element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-              <Route path="/chatbot" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
+                {/* Protected routes — require login */}
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/chat"    element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                <Route path="/chatbot" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
 
-              <Route path="/home/editor"         element={<ProtectedRoute><CodingHome /></ProtectedRoute>} />
-              <Route path="/home/editor/:roomid" element={<ProtectedRoute><CodingEditor /></ProtectedRoute>} />
+                <Route path="/home/editor"         element={<ProtectedRoute><CodingHome /></ProtectedRoute>} />
+                <Route path="/home/editor/:roomid" element={<ProtectedRoute><CodingEditor /></ProtectedRoute>} />
 
-              <Route path="/whiteboard"         element={<ProtectedRoute><WhiteHome /></ProtectedRoute>} />
+                <Route path="/whiteboard"         element={<ProtectedRoute><WhiteHome /></ProtectedRoute>} />
 
-              <Route path="/docs"     element={<ProtectedRoute><DocEditor /></ProtectedRoute>} />
-              <Route path="/ppt"      element={<ProtectedRoute><PPTEditor /></ProtectedRoute>} />
-              <Route path="/photoshop" element={<ProtectedRoute><PhotoEditor /></ProtectedRoute>} />
-            </Route>
-          </Routes>
-        </Suspense>
+                <Route path="/docs"     element={<ProtectedRoute><DocEditor /></ProtectedRoute>} />
+                <Route path="/ppt"      element={<ProtectedRoute><PPTEditor /></ProtectedRoute>} />
+                <Route path="/photoshop" element={<ProtectedRoute><PhotoEditor /></ProtectedRoute>} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </Router>
     </>
   );

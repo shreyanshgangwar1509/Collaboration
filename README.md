@@ -37,6 +37,41 @@ A real-time workspace for teams to sync on code, documents, and design. This pro
 * **Real-time**: Socket.io (with JWT-based handshake authentication).
 * **Auth**: Custom JWT implementation with bcryptjs password hashing.
 
+## Project Structure
+
+```text
+client/
+  src/
+    assets/        Static assets (images, icons, SVGs)
+    components/    Shared UI components (templates, forms, buttons)
+    constants/     Client-side event and config constants
+    hooks/         Custom React hooks (useSocket)
+    layout/        Application shells, navbar, header, and footer
+    Pages/         Feature page modules (PascalCase)
+      Auth/        Login, Register, and Profile views
+      Chat/        Real-time group chat
+      Chatbot/     AI assistant with rule-based engine
+      Coding/      Real-time collaborative code editor
+      Docs/        Rich text document editor
+      Home/        Landing page and hero sections
+      PhotoShop/   Fabric.js canvas image studio
+      PPT/         Presentation slide builder
+      WhiteBoard/  Canvas drawing board
+    App.jsx        Root router and suspense fallback
+    main.jsx       Application entry point
+server/
+  constants/       System event names and language mappings
+  controllers/     Business logic handlers (*.controller.js)
+  middlewares/     Auth and global error handlers (*.middleware.js)
+  models/          Mongoose schemas and models (*.model.js)
+  routes/          Express REST route endpoints (*.routes.js)
+  utils/           Database connection, mailer, JWT, and Socket.IO
+  index.js         Express server initialization and socket bootstrap
+temp/              Archived unused, deprecated, and stub files (git-ignored)
+```
+
+Generated build output, dependencies, caches, temporary files, and local environment files are excluded from Git. Keep deployable build output in the tool's expected `dist/` directory rather than moving it into a temporary directory.
+
 ## Setup
 
 ### Prerequisites

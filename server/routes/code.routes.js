@@ -1,6 +1,6 @@
 import express from 'express';
-import { compliecode } from '../controllers/code.js';
-import { isAuthenticated } from '../middlewares/auth.js';
+import { compliecode } from '../controllers/code.controller.js';
+import { isAuthenticated } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 

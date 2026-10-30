@@ -1,4 +1,4 @@
-import VerificationToken from "../models/VerificationToken.js";
+import VerificationToken from "../models/token.model.js";
 import { sendOtpEmail } from "./mailer.js";
 
 export default async function sendVerificationEmail(req, email) {
@@ -21,7 +21,7 @@ export default async function sendVerificationEmail(req, email) {
     await newToken.save(); // Save the new token to the database
 
     await sendOtpEmail(email, otp);
-    console.log(`OTP ${otp} sent to ${email}`); // Log for debugging
+    console.log(`Verification OTP successfully sent to ${email}`);
   } catch (error) {
     console.error("Error in sendVerificationEmail:", error); // Log error for debugging
     throw new Error("Failed to send verification email"); // Throw an error to be handled in the calling function
